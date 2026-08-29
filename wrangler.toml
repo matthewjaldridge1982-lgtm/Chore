@@ -1,0 +1,29 @@
+# Wrangler configuration for the chore tracker Cloudflare Pages project.
+#
+# Verified against wrangler CLI v4.127.1's own `--help` output in this
+# environment on 2026-08-29 (outbound access to developers.cloudflare.com was
+# blocked here, so the CLI itself — not the docs site — is the source of
+# truth this file was checked against). If your installed wrangler version
+# reports very different flags for `wrangler d1` / `wrangler pages`, re-check
+# `npx wrangler d1 --help` and `npx wrangler pages --help` before assuming
+# this file is stale.
+#
+# name / pages_build_output_dir together tell Wrangler this is a Pages
+# project whose static assets live in ./public and whose Functions live in
+# ./functions (that directory name is a Pages convention, not configured
+# here).
+
+name = "chore-tracker"
+pages_build_output_dir = "public"
+compatibility_date = "2026-08-29"
+compatibility_flags = ["nodejs_compat"]
+
+# Created by `wrangler d1 create chore-tracker`, which prints the block
+# below (including the real database_id) for you to paste in. See README.md
+# "Setup from zero" for the exact command. The placeholder id here will not
+# work until you replace it.
+[[d1_databases]]
+binding = "DB"
+database_name = "chore-tracker"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+migrations_dir = "migrations"

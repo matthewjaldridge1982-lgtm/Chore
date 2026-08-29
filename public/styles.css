@@ -1,0 +1,602 @@
+/* ==========================================================================
+   Chore tracker styles.
+   Mobile-first, large tap targets (min 48px, chore rows 64px), readable by a
+   7-year-old: big emoji, big text, obvious colour states, zero clutter.
+   ========================================================================== */
+
+:root {
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --ink: #2b2b2b;
+  --ink-muted: #767268;
+  --border: #e8e2d9;
+  --danger: #c0392b;
+  --amber: #e0a125;
+  --green: #4a9d5f;
+  --grey: #b7b2a8;
+  --nav-height: 76px;
+  --header-height: 60px;
+  font-size: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Author rules below set `display` on several of these same elements
+   (header, bottom nav, banner, hint), which would otherwise win the
+   cascade over the browser's default `[hidden]{display:none}` and make
+   "hidden" elements render anyway. Force it explicitly instead. */
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+/* Inputs must be >=16px so iOS Safari doesn't zoom on focus. */
+input {
+  font-size: 16px;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+/* ---------- Banner (errors) ---------- */
+
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 12px 16px calc(12px + env(safe-area-inset-top, 0px));
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  background: var(--danger);
+  color: #fff;
+  font-size: 15px;
+  text-align: center;
+  animation: slide-down 0.2s ease-out;
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ---------- iOS "Add to Home Screen" hint ---------- */
+
+.ios-hint {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #2b2b2b;
+  color: #fff;
+  font-size: 13px;
+}
+
+.ios-hint button {
+  min-width: 44px;
+  min-height: 44px;
+  color: #fff;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* ---------- Header ---------- */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.header-person .emoji {
+  font-size: 28px;
+}
+
+.switch-person-btn {
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+/* ---------- Main / screens ---------- */
+
+.app-main {
+  padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 16px);
+  min-height: 100vh;
+}
+
+.screen {
+  padding: 20px 16px 8px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ---------- Person picker ---------- */
+
+.screen-picker {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.picker-title {
+  text-align: center;
+  font-size: 26px;
+  margin: 0 0 28px;
+}
+
+.picker-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.picker-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 12px;
+  border-radius: 20px;
+  border: 3px solid var(--accent, var(--border));
+  background: var(--surface);
+  min-height: 160px;
+  justify-content: center;
+}
+
+.picker-card .emoji {
+  font-size: 56px;
+}
+
+.picker-card .name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent, var(--ink));
+}
+
+/* ---------- My chores ---------- */
+
+.chores-progress {
+  margin-bottom: 12px;
+}
+
+.chores-date {
+  font-size: 16px;
+  color: var(--ink-muted);
+  margin-bottom: 4px;
+}
+
+.chores-count {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.progress-track {
+  height: 18px;
+  border-radius: 9px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--accent, var(--green));
+  border-radius: 9px;
+  transition: width 0.25s ease-out;
+}
+
+.celebration {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  padding: 14px;
+  margin: 10px 0;
+  border-radius: 14px;
+  background: #fff6e0;
+  animation: pop-in 1.2s ease-out;
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.chores-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 24px;
+}
+
+.chore-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  width: 100%;
+  text-align: left;
+  transition: opacity 0.15s ease-out;
+}
+
+.chore-row .chore-emoji {
+  font-size: 30px;
+  flex-shrink: 0;
+}
+
+.chore-row .chore-label {
+  flex: 1;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.chore-row .chore-tick {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid var(--accent, var(--border));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+}
+
+.chore-row.done {
+  opacity: 0.55;
+}
+
+.chore-row.done .chore-label {
+  text-decoration: line-through;
+}
+
+.chore-row.done .chore-tick {
+  background: var(--accent, var(--green));
+}
+
+.chores-empty {
+  text-align: center;
+  color: var(--ink-muted);
+  padding: 20px;
+}
+
+/* ---------- Extras ---------- */
+
+.extras-section {
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.extras-heading {
+  font-size: 18px;
+  margin: 14px 0 10px;
+}
+
+.extra-form {
+  display: flex;
+  gap: 10px;
+}
+
+.extra-input {
+  flex: 1;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.extra-add-btn {
+  min-width: 72px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.extras-list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.extra-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.extra-row .extra-text {
+  flex: 1;
+  font-size: 16px;
+  word-break: break-word;
+}
+
+.extra-row .extra-delete {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+  color: var(--ink-muted);
+  border-radius: 50%;
+}
+
+/* ---------- Family view ---------- */
+
+.family-title {
+  font-size: 22px;
+  margin: 0 0 12px;
+}
+
+.family-week-title {
+  margin-top: 26px;
+}
+
+.family-today {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.family-person {
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.family-person-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 16px;
+  width: 100%;
+  text-align: left;
+}
+
+.family-person-row .emoji {
+  font-size: 28px;
+}
+
+.family-person-row .name {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.family-person-row .count {
+  font-size: 16px;
+  color: var(--ink-muted);
+  margin-right: 6px;
+}
+
+.status-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.status-complete {
+  background: var(--green);
+}
+
+.status-dot.status-partial {
+  background: var(--amber);
+}
+
+.status-dot.status-none {
+  background: var(--grey);
+}
+
+.family-person-details {
+  padding: 0 16px 14px 58px;
+  display: none;
+}
+
+.family-person.expanded .family-person-details {
+  display: block;
+}
+
+.family-outstanding {
+  font-size: 15px;
+  color: var(--ink-muted);
+  margin: 0 0 6px;
+}
+
+.family-outstanding-item {
+  font-size: 15px;
+  margin-bottom: 3px;
+}
+
+.family-extra-item {
+  font-size: 15px;
+  margin-bottom: 3px;
+}
+
+.family-nothing {
+  font-size: 15px;
+  color: var(--ink-muted);
+}
+
+/* ---------- Family week grid ---------- */
+
+.family-week {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.week-grid {
+  display: grid;
+  border-collapse: collapse;
+  min-width: 480px;
+}
+
+.week-grid .week-cell {
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 12px;
+  border: 1px solid var(--border);
+}
+
+.week-grid .week-header {
+  font-weight: 700;
+  background: var(--surface);
+}
+
+.week-grid .week-person-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  justify-content: flex-start;
+  padding-left: 10px;
+  background: var(--surface);
+}
+
+.week-day-cell {
+  height: 34px;
+}
+
+.week-day-cell.status-complete {
+  background: var(--green);
+}
+
+.week-day-cell.status-partial {
+  background: var(--amber);
+}
+
+.week-day-cell.status-none {
+  background: var(--grey);
+  opacity: 0.35;
+}
+
+/* ---------- Bottom nav ---------- */
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  height: var(--nav-height);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  min-height: 48px;
+}
+
+.nav-emoji {
+  font-size: 24px;
+}
+
+.nav-btn.active {
+  color: var(--ink);
+}
+
+@media (min-width: 600px) {
+  .picker-cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

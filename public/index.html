@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Chores</title>
+
+<meta name="theme-color" content="#3a3a3a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Chores" />
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
+<link rel="icon" href="/icons/icon-192.png" />
+<link rel="manifest" href="/manifest.json" />
+
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+<div id="banner" class="banner" hidden role="alert"></div>
+
+<div id="ios-hint" class="ios-hint" hidden>
+  <span>Install this app: tap <strong>Share</strong> then <strong>Add to Home Screen</strong>.</span>
+  <button id="ios-hint-dismiss" type="button" aria-label="Dismiss">✕</button>
+</div>
+
+<header id="app-header" class="app-header" hidden>
+  <div id="header-person" class="header-person"></div>
+  <button id="switch-person-btn" type="button" class="switch-person-btn">Switch person</button>
+</header>
+
+<main id="app-main" class="app-main">
+
+  <section id="screen-picker" class="screen screen-picker" hidden>
+    <h1 class="picker-title">Who's ticking off chores?</h1>
+    <div id="picker-cards" class="picker-cards"></div>
+  </section>
+
+  <section id="screen-chores" class="screen screen-chores" hidden>
+    <div class="chores-progress">
+      <div id="chores-date" class="chores-date"></div>
+      <div id="chores-count" class="chores-count"></div>
+      <div class="progress-track">
+        <div id="chores-progress-bar" class="progress-bar"></div>
+      </div>
+    </div>
+
+    <div id="chores-celebration" class="celebration" hidden>🎉 All done today! 🎉</div>
+
+    <ul id="chores-list" class="chores-list"></ul>
+
+    <div class="extras-section">
+      <h2 class="extras-heading">Did anything else today?</h2>
+      <form id="extra-form" class="extra-form">
+        <input
+          id="extra-input"
+          class="extra-input"
+          type="text"
+          maxlength="200"
+          placeholder="Type something..."
+          autocomplete="off"
+        />
+        <button type="submit" class="extra-add-btn">Add</button>
+      </form>
+      <ul id="extras-list" class="extras-list"></ul>
+    </div>
+  </section>
+
+  <section id="screen-family" class="screen screen-family" hidden>
+    <h1 class="family-title">Today</h1>
+    <ul id="family-today" class="family-today"></ul>
+
+    <h2 class="family-title family-week-title">Last 7 days</h2>
+    <div id="family-week" class="family-week"></div>
+  </section>
+
+</main>
+
+<nav id="bottom-nav" class="bottom-nav" hidden>
+  <button id="nav-chores" type="button" class="nav-btn" data-view="chores">
+    <span class="nav-emoji">✅</span>
+    <span>My Chores</span>
+  </button>
+  <button id="nav-family" type="button" class="nav-btn" data-view="family">
+    <span class="nav-emoji">👪</span>
+    <span>Family</span>
+  </button>
+</nav>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>
