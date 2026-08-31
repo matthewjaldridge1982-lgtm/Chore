@@ -3,8 +3,14 @@
    Mobile-first, large tap targets (min 48px, chore rows 64px), readable by a
    7-year-old: big emoji, big text, obvious colour states, zero clutter.
    Native system fonts (SF Pro on Apple devices, Segoe UI Variable on
-   Windows 11), soft elevation instead of hard outlines, automatic light/
-   dark via the OS, and tactile press feedback throughout.
+   Windows 11), soft elevation instead of hard outlines, and tactile press
+   feedback throughout.
+
+   Deliberately light-only, not OS-following: the kiosk device's Windows
+   theme (dark, light, whatever) shouldn't change how the shared screen
+   looks. If you want dark mode back, reintroduce a
+   `@media (prefers-color-scheme: dark)` block redefining the tokens below
+   (kept this way once already — see git history).
    ========================================================================== */
 
 :root {
@@ -33,24 +39,7 @@
   --nav-height: 78px;
   --header-height: 60px;
   font-size: 18px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #000000;
-    --surface: #1c1c1e;
-    --surface-2: #2c2c2e;
-    --ink: #f5f5f7;
-    --ink-secondary: #98989d;
-    --separator: rgba(84, 84, 88, 0.6);
-    --shadow-card: 0 1px 1px rgba(0, 0, 0, 0.4), 0 6px 16px rgba(0, 0, 0, 0.5);
-    --shadow-float: 0 2px 4px rgba(0, 0, 0, 0.5), 0 12px 28px rgba(0, 0, 0, 0.6);
-    --header-bg: rgba(28, 28, 30, 0.72);
-    --danger: #ff453a;
-    --amber: #ff9f0a;
-    --green: #30d158;
-    --grey: #48484a;
-  }
+  color-scheme: light;
 }
 
 * {
@@ -281,8 +270,9 @@ button {
 }
 
 .picker-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 16px;
 }
 
@@ -315,13 +305,15 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 14px;
+  width: 160px;
+  flex: 0 0 auto;
   padding: 28px 12px;
   border-radius: 24px;
   background: var(--surface);
   box-shadow: var(--shadow-card);
   min-height: 168px;
-  justify-content: center;
 }
 
 /* Weekly star — shows on the picker Sat/Sun for a perfect Mon–Fri. */
@@ -810,12 +802,6 @@ button {
   color: var(--ink);
 }
 
-@media (min-width: 600px) {
-  .picker-cards {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
 /* ---------- Kiosk / large touchscreen (e.g. a Surface Go propped on a
    counter, everyone tapping the same fixed screen at arm's length rather
    than holding a phone) — same layout, bigger and more generous. ---------- */
@@ -840,6 +826,7 @@ button {
   }
 
   .picker-card {
+    width: 220px;
     padding: 40px 20px;
     min-height: 250px;
     border-radius: 28px;
