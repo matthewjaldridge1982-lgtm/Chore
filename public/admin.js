@@ -22,6 +22,7 @@ const el = {
 const personById = Object.fromEntries(PEOPLE.map((p) => [p.id, p]));
 
 let chores = [];
+let editingId = null;
 const addFormState = { emoji: DEFAULT_EMOJI, people: new Set(), days: new Set([1, 2, 3, 4, 5]) };
 
 // ============================================================================
@@ -234,8 +235,11 @@ function renderChoresList() {
 }
 
 function renderChoreRow(chore) {
+  const isEditing = chore.id === editingId;
+
   const row = document.createElement("div");
   row.className = "admin-chore-row";
+  row.dataset.choreId = chore.id;
 
   const top = document.createElement("div");
   top.className = "admin-chore-top";
@@ -244,16 +248,36 @@ function renderChoreRow(chore) {
   emoji.className = "admin-chore-emoji";
   emoji.textContent = chore.emoji;
 
-  const label = document.createElement("span");
-  label.className = "admin-chore-label";
-  label.textContent = chore.label;
+  let labelInput = null;
+  let label;
+  if (isEditing) {
+    labelInput = document.createElement("input");
+    labelInput.type = "text";
+    labelInput.className = "admin-label-input";
+    labelInput.maxLength = 60;
+    labelInput.value = chore.label;
+    labelInput.addEventListener("keydown", (evt) => {
+      if (evt.key === "Enter") {
+        evt.preventDefault();
+        saveLabelEdit(chore, labelInput.value);
+      } else if (evt.key === "Escape") {
+        evt.preventDefault();
+        cancelEdit();
+      }
+    });
+    label = labelInput;
+  } else {
+    label = document.createElement("span");
+    label.className = "admin-chore-label";
+    label.textContent = chore.label;
+  }
 
   // Exactly one person owns a chore record — shown as a single pill
   // naming them, not a pair of chips (which read as "pick any
   // combination" when what they actually did was move ownership between
   // two mutually-exclusive states). Tap it to hand the chore to the other
   // person; the ↔ makes that a swap, not a toggle you might misread as
-  // "both". "Duplicate" below is how the same chore ends up with both.
+  // "both".
   const owner = personById[chore.person_id];
   const assigneeBtn = document.createElement("button");
   assigneeBtn.type = "button";
@@ -281,25 +305,71 @@ function renderChoreRow(chore) {
   const actions = document.createElement("div");
   actions.className = "admin-chore-actions";
 
-  const duplicateBtn = document.createElement("button");
-  duplicateBtn.type = "button";
-  duplicateBtn.className = "admin-duplicate-btn";
-  duplicateBtn.setAttribute("aria-label", `Duplicate ${chore.label} for ${otherPerson.name}`);
-  duplicateBtn.title = `Duplicate for ${otherPerson.name}`;
-  duplicateBtn.innerHTML = `⧉ <span>Duplicate for ${otherPerson.emoji} ${otherPerson.name}</span>`;
-  duplicateBtn.addEventListener("click", () => duplicateChore(chore, otherPerson.id));
+  if (isEditing) {
+    const saveBtn = document.createElement("button");
+    saveBtn.type = "button";
+    saveBtn.className = "admin-save-btn";
+    saveBtn.textContent = "✓ Save";
+    saveBtn.addEventListener("click", () => saveLabelEdit(chore, labelInput.value));
 
-  const deleteBtn = document.createElement("button");
-  deleteBtn.type = "button";
-  deleteBtn.className = "admin-delete-btn";
-  deleteBtn.setAttribute("aria-label", `Delete ${chore.label}`);
-  deleteBtn.textContent = "✕";
-  deleteBtn.addEventListener("click", () => deleteChore(chore));
+    const cancelBtn = document.createElement("button");
+    cancelBtn.type = "button";
+    cancelBtn.className = "admin-cancel-btn";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.addEventListener("click", () => cancelEdit());
 
-  actions.append(duplicateBtn, deleteBtn);
+    actions.append(saveBtn, cancelBtn);
+  } else {
+    const editBtn = document.createElement("button");
+    editBtn.type = "button";
+    editBtn.className = "admin-edit-btn";
+    editBtn.setAttribute("aria-label", `Edit ${chore.label}`);
+    editBtn.innerHTML = `✎ <span>Edit</span>`;
+    editBtn.addEventListener("click", () => startEdit(chore));
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "admin-delete-btn";
+    deleteBtn.setAttribute("aria-label", `Delete ${chore.label}`);
+    deleteBtn.textContent = "✕";
+    deleteBtn.addEventListener("click", () => deleteChore(chore));
+
+    actions.append(editBtn, deleteBtn);
+  }
 
   row.append(top, daysRow, actions);
   return row;
+}
+
+function startEdit(chore) {
+  editingId = chore.id;
+  renderChoresList();
+  const input = el.choresByPerson.querySelector(`[data-chore-id="${chore.id}"] .admin-label-input`);
+  if (input) {
+    input.focus();
+    input.select();
+  }
+}
+
+function cancelEdit() {
+  editingId = null;
+  renderChoresList();
+}
+
+async function saveLabelEdit(chore, newLabel) {
+  const trimmed = newLabel.trim();
+  if (!trimmed) return showBanner("A chore needs a title.");
+  const previous = chore.label;
+  chore.label = trimmed;
+  editingId = null;
+  renderChoresList();
+  try {
+    await api.updateChore({ id: chore.id, label: trimmed });
+  } catch (err) {
+    chore.label = previous;
+    renderChoresList();
+    showBanner(err.message || "Couldn't update that chore.");
+  }
 }
 
 async function reassignChore(chore, personId) {
@@ -342,31 +412,6 @@ async function deleteChore(chore) {
     chores.push(chore);
     renderChoresList();
     showBanner(err.message || "Couldn't delete that chore.");
-  }
-}
-
-// Makes an independent copy of a chore for another person — same label,
-// emoji, and days, but its own record, so each person's copy can later be
-// rescheduled or deleted separately. This is how the same chore ends up
-// belonging to both people, since a single chore record only ever has one
-// owner (see renderChoreRow).
-async function duplicateChore(chore, personId) {
-  const tempId = `temp-${Math.random().toString(36).slice(2)}`;
-  const copy = { id: tempId, person_id: personId, label: chore.label, emoji: chore.emoji, days: [...chore.days] };
-  chores.push(copy);
-  renderChoresList();
-  try {
-    const result = await api.createChore({
-      person_id: personId,
-      label: chore.label,
-      emoji: chore.emoji,
-      days: chore.days,
-    });
-    copy.id = result.id;
-  } catch (err) {
-    chores = chores.filter((c) => c !== copy);
-    renderChoresList();
-    showBanner(err.message || "Couldn't duplicate that chore.");
   }
 }
 

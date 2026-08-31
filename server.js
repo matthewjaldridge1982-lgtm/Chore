@@ -353,14 +353,18 @@ async function handleUpdateChore(req, res) {
   } catch {
     return sendError(res, 400, "Invalid JSON body.");
   }
-  const { id, person_id, days } = body ?? {};
+  const { id, person_id, label, days } = body ?? {};
   if (typeof id !== "string" || !db.chores[id]) return sendError(res, 400, "Unknown chore 'id'.");
   if (person_id !== undefined && !isValidPerson(person_id)) return sendError(res, 400, "Unknown 'person_id'.");
+  if (label !== undefined && !isValidLabel(label)) {
+    return sendError(res, 400, `'label' must be 1–${MAX_LABEL_LEN} characters.`);
+  }
   if (days !== undefined && !isValidDays(days)) {
     return sendError(res, 400, "'days' must be a non-empty array of unique weekday numbers 0–6.");
   }
 
   if (person_id !== undefined) db.chores[id].person_id = person_id;
+  if (label !== undefined) db.chores[id].label = label.trim();
   if (days !== undefined) db.chores[id].days = days;
   await persistDb();
   sendJson(res, 200, { ok: true });
