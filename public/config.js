@@ -54,6 +54,6 @@
 export const TIMEZONE = "Australia/Melbourne";
 
 export const PEOPLE = [
-  { id: "p1", name: "Rocco", emoji: "🕷️", colour: "#ff9500" },
+  { id: "p1", name: "Rocco", emoji: "💀", colour: "#ff9500" },
   { id: "p2", name: "Leonardo", emoji: "🐧", colour: "#007aff" },
 ];

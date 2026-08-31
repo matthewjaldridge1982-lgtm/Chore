@@ -34,6 +34,12 @@ const el = {
   screenFamily: document.getElementById("screen-family"),
   familyToday: document.getElementById("family-today"),
   familyWeek: document.getElementById("family-week"),
+
+  weekDayEditor: document.getElementById("week-day-editor"),
+  weekDayEditorBackdrop: document.getElementById("week-day-editor-backdrop"),
+  weekDayEditorTitle: document.getElementById("week-day-editor-title"),
+  weekDayEditorClose: document.getElementById("week-day-editor-close"),
+  weekDayEditorList: document.getElementById("week-day-editor-list"),
 };
 
 const personById = Object.fromEntries(PEOPLE.map((p) => [p.id, p]));
@@ -111,6 +117,21 @@ function shortDayLabel(dateStr) {
   }).format(dt);
 }
 
+// Like humanToday(), but for an arbitrary YYYY-MM-DD string rather than
+// "right now" — used by the week-day editor's title. Parsed/formatted in
+// UTC for the same reason as shortDayLabel(): the string already IS the
+// Melbourne calendar date.
+function humanDate(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return new Intl.DateTimeFormat("en-AU", {
+    timeZone: "UTC",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(dt);
+}
+
 function weekdayForDateStr(dateStr) {
   const [y, m, d] = dateStr.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
@@ -140,6 +161,9 @@ const state = {
   starWeekCompletions: null,
   pendingChoreKeys: new Set(),
   expandedFamilyPerson: null,
+  // { personId, date } while the Family week grid's retroactive-edit
+  // panel is open for that cell; null when closed.
+  weekDayEditor: null,
 };
 
 function isWeekend() {
@@ -525,10 +549,12 @@ function renderFamilyWeek() {
       ).length;
       const status = statusFor(doneCount, chores.length);
 
-      const cell = document.createElement("div");
+      const cell = document.createElement("button");
+      cell.type = "button";
       cell.className = `week-cell week-day-cell status-${status}`;
       if (status === "complete") cell.style.setProperty("--accent", person.colour);
-      cell.title = `${person.name} — ${shortDayLabel(d)}: ${doneCount}/${chores.length}`;
+      cell.title = `${person.name} — ${shortDayLabel(d)}: ${doneCount}/${chores.length}. Tap to review or change.`;
+      cell.addEventListener("click", () => openWeekDayEditor(person.id, d));
       grid.appendChild(cell);
     }
   }
@@ -544,6 +570,113 @@ function cellDiv(className, text) {
 }
 
 // ============================================================================
+// Week-day editor — lets a parent tap a cell in the Family week grid to go
+// back and tick/untick that person's chores for that specific earlier day,
+// for when something got done (or didn't) but nobody marked it at the time.
+// ============================================================================
+
+function weekCompletionKey(c) {
+  return `${c.date}|${c.person_id}|${c.chore_id}`;
+}
+
+function openWeekDayEditor(personId, date) {
+  state.weekDayEditor = { personId, date };
+  renderWeekDayEditor();
+}
+
+function closeWeekDayEditor() {
+  state.weekDayEditor = null;
+  renderWeekDayEditor();
+}
+
+function renderWeekDayEditor() {
+  const editing = state.weekDayEditor;
+  el.weekDayEditor.hidden = !editing;
+  if (!editing) return;
+
+  const { personId, date } = editing;
+  const person = personById[personId];
+  el.weekDayEditorTitle.textContent = `${person.emoji} ${person.name} — ${humanDate(date)}`;
+
+  const completedKeys = new Set(state.week.completions.map(weekCompletionKey));
+  const chores = choresForPerson(personId, weekdayForDateStr(date));
+
+  el.weekDayEditorList.innerHTML = "";
+  if (chores.length === 0) {
+    const empty = document.createElement("li");
+    empty.className = "chores-empty";
+    empty.textContent = "No chores that day.";
+    el.weekDayEditorList.appendChild(empty);
+    return;
+  }
+
+  for (const chore of chores) {
+    const done = completedKeys.has(`${date}|${personId}|${chore.id}`);
+
+    const li = document.createElement("li");
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = "chore-row" + (done ? " done" : "");
+    row.style.setProperty("--accent", person.colour);
+
+    const tile = document.createElement("div");
+    tile.className = "icon-tile";
+    const emoji = document.createElement("span");
+    emoji.className = "chore-emoji";
+    emoji.textContent = chore.emoji;
+    tile.appendChild(emoji);
+
+    const label = document.createElement("span");
+    label.className = "chore-label";
+    label.textContent = chore.label;
+
+    const tick = document.createElement("span");
+    tick.className = "chore-tick";
+    tick.textContent = done ? "✓" : "";
+
+    row.append(tile, label, tick);
+    row.addEventListener("click", () => toggleWeekDayChore(personId, date, chore.id));
+
+    li.appendChild(row);
+    el.weekDayEditorList.appendChild(li);
+  }
+}
+
+async function toggleWeekDayChore(personId, date, choreId) {
+  const key = `${date}|${personId}|${choreId}`;
+  if (state.pendingChoreKeys.has(key)) return;
+  state.pendingChoreKeys.add(key);
+
+  const wasDone = state.week.completions.some((c) => weekCompletionKey(c) === key);
+  const apply = (done) => {
+    state.week.completions = state.week.completions.filter((c) => weekCompletionKey(c) !== key);
+    if (done) state.week.completions.push({ date, person_id: personId, chore_id: choreId });
+    if (date === state.today.dateStr) {
+      const dayKey = `${personId}|${choreId}`;
+      if (done) state.day.completions.add(dayKey);
+      else state.day.completions.delete(dayKey);
+    }
+  };
+
+  apply(!wasDone);
+  renderWeekDayEditor();
+  renderFamilyWeek();
+
+  try {
+    const result = await api.toggle({ date, person_id: personId, chore_id: choreId });
+    apply(result.done);
+  } catch (err) {
+    apply(wasDone);
+    showBanner("Couldn't save that — check your connection.");
+  } finally {
+    state.pendingChoreKeys.delete(key);
+    renderWeekDayEditor();
+    renderFamilyWeek();
+    if (state.view === "chores") renderChoresScreen();
+  }
+}
+
+// ============================================================================
 // Actions
 // ============================================================================
 
@@ -553,13 +686,38 @@ function choosePerson(personId) {
   state.view = "chores";
   render();
   refreshCurrentView();
+  resetIdleTimer();
 }
 
 function switchPerson() {
+  stopIdleTimer();
   state.personId = null;
   localStorage.removeItem(LS_PERSON_KEY);
   state.view = "picker";
   render();
+}
+
+// ============================================================================
+// Idle timeout — the person screen (someone's own chore list) times back
+// out to the picker after a minute of no taps, so it doesn't sit open under
+// the wrong kid's name once they've wandered off. Only armed while actually
+// on that screen; any tap/keypress anywhere resets the clock.
+// ============================================================================
+
+const IDLE_TIMEOUT_MS = 60_000;
+let idleTimer = null;
+
+function resetIdleTimer() {
+  clearTimeout(idleTimer);
+  if (state.view !== "chores") return;
+  idleTimer = setTimeout(() => {
+    if (state.view === "chores") switchPerson();
+  }, IDLE_TIMEOUT_MS);
+}
+
+function stopIdleTimer() {
+  clearTimeout(idleTimer);
+  idleTimer = null;
 }
 
 // From the picker screen's "Family overview" shortcut — peek at Family
@@ -757,12 +915,25 @@ function init() {
     addExtra(el.extraInput.value);
   });
 
+  el.weekDayEditorClose.addEventListener("click", closeWeekDayEditor);
+  el.weekDayEditorBackdrop.addEventListener("click", closeWeekDayEditor);
+  document.addEventListener("keydown", (evt) => {
+    if (evt.key === "Escape" && state.weekDayEditor) closeWeekDayEditor();
+  });
+
+  // Any tap/keypress anywhere resets the person-screen idle clock;
+  // resetIdleTimer() itself is a no-op unless we're actually on that screen.
+  document.addEventListener("click", resetIdleTimer);
+  document.addEventListener("touchstart", resetIdleTimer, { passive: true });
+  document.addEventListener("keydown", resetIdleTimer);
+
   setupIosHint();
   registerServiceWorker();
 
   render();
   refreshCurrentView();
   startPolling();
+  resetIdleTimer();
 }
 
 init();

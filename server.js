@@ -99,8 +99,12 @@ function isValidDate(date) {
   if (check.getUTCFullYear() !== y || check.getUTCMonth() !== m - 1 || check.getUTCDate() !== d) {
     return false;
   }
-  const twoDaysMs = 2 * 24 * 60 * 60 * 1000;
-  return Math.abs(asUTC - Date.now()) <= twoDaysMs + 24 * 60 * 60 * 1000;
+  // Wide enough to cover every date the 7-day Family week grid can show
+  // (today back to 6 days ago) plus a day of slack for timezone rounding,
+  // since retroactively toggling a chore on an earlier day in that grid is
+  // a normal, supported action, not a suspicious one.
+  const windowMs = 8 * 24 * 60 * 60 * 1000;
+  return Math.abs(asUTC - Date.now()) <= windowMs;
 }
 
 const isValidPerson = (id) => typeof id === "string" && PERSON_IDS.has(id);
