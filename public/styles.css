@@ -286,6 +286,30 @@ button {
   gap: 16px;
 }
 
+.family-overview-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  margin: 24px auto 0;
+  padding: 0 24px;
+  width: fit-content;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  transition: transform 0.15s var(--ease-out);
+}
+.family-overview-btn:active {
+  transform: scale(0.97);
+}
+.family-overview-btn .nav-emoji {
+  font-size: 20px;
+}
+
 .picker-card {
   position: relative;
   display: flex;

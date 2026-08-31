@@ -21,6 +21,7 @@ const el = {
 
   screenPicker: document.getElementById("screen-picker"),
   pickerCards: document.getElementById("picker-cards"),
+  familyOverviewBtn: document.getElementById("family-overview-btn"),
 
   screenChores: document.getElementById("screen-chores"),
   choresDate: document.getElementById("chores-date"),
@@ -128,7 +129,11 @@ function choresForPerson(personId, weekday) {
 
 const state = {
   personId: localStorage.getItem(LS_PERSON_KEY) || null,
-  view: "chores", // 'chores' | 'family'
+  // 'picker' | 'chores' | 'family'. 'chores' always implies personId is
+  // set (you can't have a chore list without picking who you are); the
+  // picker screen has its own shortcut into 'family' that leaves personId
+  // untouched, so a family overview is reachable before picking anyone.
+  view: localStorage.getItem(LS_PERSON_KEY) ? "chores" : "picker",
   today: computeToday(),
   chores: [], // [{id, person_id, label, emoji, days}], fetched from /api/chores
   day: { completions: new Set(), extras: [] }, // "person_id|chore_id" keys
@@ -210,22 +215,27 @@ function showBanner(message) {
 // ============================================================================
 
 function render() {
-  const pickingPerson = !state.personId;
+  const hasPerson = !!state.personId;
 
-  el.screenPicker.hidden = !pickingPerson;
-  el.header.hidden = pickingPerson;
-  el.bottomNav.hidden = pickingPerson;
-  el.screenChores.hidden = pickingPerson || state.view !== "chores";
-  el.screenFamily.hidden = pickingPerson || state.view !== "family";
+  el.screenPicker.hidden = state.view !== "picker";
+  el.screenChores.hidden = state.view !== "chores";
+  el.screenFamily.hidden = state.view !== "family";
+  el.header.hidden = state.view === "picker";
+  // The bottom nav's "My Chores" tab is meaningless without a picked
+  // person, so the whole nav only shows once one is — even while viewing
+  // Family via the picker's shortcut (personId still null there).
+  el.bottomNav.hidden = state.view === "picker" || !hasPerson;
 
-  if (pickingPerson) {
+  if (state.view === "picker") {
     renderPicker();
     return;
   }
 
   renderHeader();
-  el.navChores.classList.toggle("active", state.view === "chores");
-  el.navFamily.classList.toggle("active", state.view === "family");
+  if (hasPerson) {
+    el.navChores.classList.toggle("active", state.view === "chores");
+    el.navFamily.classList.toggle("active", state.view === "family");
+  }
 
   if (state.view === "chores") {
     renderChoresScreen();
@@ -274,7 +284,16 @@ function starBadge() {
 function renderHeader() {
   const person = personById[state.personId];
   el.headerPerson.innerHTML = "";
-  if (!person) return;
+
+  if (!person) {
+    // Viewing Family via the picker's shortcut — nobody's been picked.
+    el.headerPerson.style.removeProperty("--accent");
+    const label = document.createElement("span");
+    label.textContent = "👪 Family";
+    el.headerPerson.appendChild(label);
+    el.switchPersonBtn.textContent = "← Back";
+    return;
+  }
 
   const emoji = document.createElement("span");
   emoji.className = "emoji";
@@ -288,6 +307,7 @@ function renderHeader() {
   if (isWeekend() && hadPerfectWeek(person.id)) {
     el.headerPerson.appendChild(starBadge());
   }
+  el.switchPersonBtn.textContent = "Switch person";
 }
 
 function renderChoresScreen() {
@@ -551,12 +571,21 @@ function choosePerson(personId) {
 function switchPerson() {
   state.personId = null;
   localStorage.removeItem(LS_PERSON_KEY);
+  state.view = "picker";
   render();
 }
 
 function switchView(view) {
   if (state.view === view) return;
   state.view = view;
+  render();
+  refreshCurrentView();
+}
+
+// From the picker screen's "Family overview" shortcut — peek at Family
+// without picking who you are first. personId stays untouched.
+function viewFamilyFromPicker() {
+  state.view = "family";
   render();
   refreshCurrentView();
 }
@@ -663,7 +692,7 @@ async function refreshCurrentView() {
     const [choresData] = await Promise.all([api.getChores(), refreshStarWeek()]);
     state.chores = choresData.chores;
 
-    if (!state.personId) {
+    if (state.view === "picker") {
       if (!el.screenPicker.hidden) renderPicker();
       return;
     }
@@ -742,6 +771,7 @@ function registerServiceWorker() {
 
 function init() {
   el.switchPersonBtn.addEventListener("click", switchPerson);
+  el.familyOverviewBtn.addEventListener("click", viewFamilyFromPicker);
   el.navChores.addEventListener("click", () => switchView("chores"));
   el.navFamily.addEventListener("click", () => switchView("family"));
   el.extraForm.addEventListener("submit", (evt) => {
