@@ -146,6 +146,17 @@ export const EMOJI_LIST = [
   { e: "🌧️", k: "rain weather" },
   { e: "❄️", k: "snow winter cold" },
 
+  // Music
+  { e: "🎵", k: "music note song practice" },
+  { e: "🎶", k: "music notes song practice" },
+  { e: "🎹", k: "piano keyboard music practice" },
+  { e: "🎸", k: "guitar music practice" },
+  { e: "🥁", k: "drums music practice" },
+  { e: "🎺", k: "trumpet music practice" },
+  { e: "🎻", k: "violin music practice" },
+  { e: "🎤", k: "microphone sing singing music" },
+  { e: "🎧", k: "headphones music listen" },
+
   // Misc
   { e: "📦", k: "box package parcel" },
   { e: "🗓️", k: "calendar schedule date" },
