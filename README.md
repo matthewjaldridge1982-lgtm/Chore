@@ -54,7 +54,15 @@ Family Chores is running.
 Leave that window open — closing it stops the server. (You can also run
 `node server.js` directly from a terminal instead of using `start.bat`.)
 
-**4. Open that "on other devices" address** in Safari on the iPad, and in
+**4. Allow it through the Windows Firewall.** The first time it starts,
+Windows will pop up a prompt asking whether to let **Node.js JavaScript
+Runtime** communicate on networks. Tick **Private networks** and click
+**Allow access**. Miss this and the server still works on the device
+itself (`localhost`) but no other device will be able to reach it. If you
+missed the prompt, open **Windows Security → Firewall & network protection
+→ Allow an app through firewall** and enable Node.js for Private networks.
+
+**5. Open that "on other devices" address** in Safari on the iPad, and in
 each phone's browser. Same address for everyone, since they're all just
 talking to the one server on the Windows device. Bookmark it, or use "Add to
 Home Screen" (see below) so it's one tap.
