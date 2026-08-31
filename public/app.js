@@ -25,6 +25,7 @@ const el = {
   screenChores: document.getElementById("screen-chores"),
   choresDate: document.getElementById("chores-date"),
   choresCount: document.getElementById("chores-count"),
+  choresProgressTrack: document.getElementById("chores-progress-track"),
   choresProgressBar: document.getElementById("chores-progress-bar"),
   choresCelebration: document.getElementById("chores-celebration"),
   choresList: document.getElementById("chores-list"),
@@ -45,6 +46,24 @@ const personById = Object.fromEntries(PEOPLE.map((p) => [p.id, p]));
 
 const WEEKDAY_NUM = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 
+// The week "resets" (fresh Mon–Fri chores, weekly star clears) at 1am
+// Monday rather than midnight, so whoever's still up late Sunday night —
+// or first up Monday before 1am — still sees the weekend state. This is
+// the only place the day boundary is shifted; every other day-to-day
+// transition still happens at ordinary local midnight.
+function effectiveNow(now = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: TIMEZONE,
+    weekday: "short",
+    hour: "2-digit",
+    hour12: false,
+  }).formatToParts(now);
+  const map = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+  const isMonday = WEEKDAY_NUM[map.weekday] === 1;
+  const hour = Number(map.hour) % 24; // some locales report midnight as "24"
+  return isMonday && hour < 1 ? new Date(now.getTime() - 60 * 60 * 1000) : now;
+}
+
 function computeToday(now = new Date()) {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: TIMEZONE,
@@ -52,7 +71,7 @@ function computeToday(now = new Date()) {
     month: "2-digit",
     day: "2-digit",
     weekday: "short",
-  }).formatToParts(now);
+  }).formatToParts(effectiveNow(now));
   const map = Object.fromEntries(parts.map((p) => [p.type, p.value]));
   return {
     dateStr: `${map.year}-${map.month}-${map.day}`,
@@ -66,7 +85,19 @@ function humanToday(now = new Date()) {
     weekday: "long",
     day: "numeric",
     month: "long",
-  }).format(now);
+  }).format(effectiveNow(now));
+}
+
+// Given today is a Saturday or Sunday, returns the [Mon,Tue,Wed,Thu,Fri]
+// date strings of the week that just finished — the window the weekly
+// star is judged against.
+function mostRecentMonToFri(today) {
+  const [y, m, d] = today.dateStr.split("-").map(Number);
+  const daysSinceMonday = today.weekday === 0 ? 6 : 5; // Sun : Sat
+  const monday = Date.UTC(y, m - 1, d - daysSinceMonday);
+  return Array.from({ length: 5 }, (_, i) =>
+    new Date(monday + i * 86_400_000).toISOString().slice(0, 10)
+  );
 }
 
 // Formats a plain YYYY-MM-DD string for display. The string already IS the
@@ -103,9 +134,32 @@ const state = {
   today: computeToday(),
   day: { completions: new Set(), extras: [] }, // "person_id|chore_id" keys
   week: { dates: [], completions: [], extras: [] },
+  // Set of "date|person_id|chore_id" for the most recently finished Mon–Fri,
+  // only populated on Sat/Sun (see refreshStarWeek). Drives the weekly star.
+  starWeekCompletions: null,
   pendingChoreKeys: new Set(),
   expandedFamilyPerson: null,
 };
+
+function isWeekend() {
+  return state.today.weekday === 0 || state.today.weekday === 6;
+}
+
+// True once someone has ticked off every chore they had on every weekday
+// (Mon–Fri) of the week that just finished. Only meaningful on a Sat/Sun —
+// callers should gate on isWeekend() themselves.
+function hadPerfectWeek(personId) {
+  if (!state.starWeekCompletions) return false;
+  let total = 0;
+  let done = 0;
+  for (const dateStr of mostRecentMonToFri(state.today)) {
+    for (const chore of choresForPerson(personId, weekdayForDateStr(dateStr))) {
+      total += 1;
+      if (state.starWeekCompletions.has(`${dateStr}|${personId}|${chore.id}`)) done += 1;
+    }
+  }
+  return total > 0 && done === total;
+}
 
 // ============================================================================
 // API client
@@ -201,9 +255,20 @@ function renderPicker() {
     name.textContent = person.name;
 
     card.append(tile, name);
+    if (isWeekend() && hadPerfectWeek(person.id)) {
+      card.appendChild(starBadge());
+    }
     card.addEventListener("click", () => choosePerson(person.id));
     el.pickerCards.appendChild(card);
   }
+}
+
+function starBadge() {
+  const star = document.createElement("span");
+  star.className = "star-badge";
+  star.textContent = "⭐";
+  star.title = "Perfect week!";
+  return star;
 }
 
 function renderHeader() {
@@ -220,6 +285,9 @@ function renderHeader() {
 
   el.headerPerson.style.setProperty("--accent", person.colour);
   el.headerPerson.append(emoji, name);
+  if (isWeekend() && hadPerfectWeek(person.id)) {
+    el.headerPerson.appendChild(starBadge());
+  }
 }
 
 function renderChoresScreen() {
@@ -234,10 +302,22 @@ function renderChoresScreen() {
     state.day.completions.has(`${person.id}|${c.id}`)
   ).length;
   const total = chores.length;
+  const weekend = isWeekend();
+  const perfectWeek = weekend && hadPerfectWeek(person.id);
 
-  el.choresCount.textContent = `${doneCount} of ${total} done`;
-  el.choresProgressBar.style.width = total === 0 ? "0%" : `${(doneCount / total) * 100}%`;
-  el.choresCelebration.hidden = !(total > 0 && doneCount === total);
+  el.choresProgressTrack.hidden = weekend;
+  if (weekend) {
+    el.choresCount.textContent = perfectWeek
+      ? "Perfect week — nothing due till Monday!"
+      : "No chores today — enjoy the weekend!";
+  } else {
+    el.choresCount.textContent = `${doneCount} of ${total} done`;
+    el.choresProgressBar.style.width = total === 0 ? "0%" : `${(doneCount / total) * 100}%`;
+  }
+  el.choresCelebration.hidden = !(perfectWeek || (total > 0 && doneCount === total));
+  el.choresCelebration.textContent = perfectWeek
+    ? "⭐ You had a perfect week! ⭐"
+    : "🎉 All done today! 🎉";
 
   el.choresList.innerHTML = "";
   if (chores.length === 0) {
@@ -347,9 +427,13 @@ function renderFamilyScreen() {
     emoji.textContent = person.emoji;
     tile.appendChild(emoji);
 
+    const nameWrap = document.createElement("span");
+    nameWrap.className = "name-wrap";
     const name = document.createElement("span");
     name.className = "name";
     name.textContent = person.name;
+    nameWrap.appendChild(name);
+    if (isWeekend() && hadPerfectWeek(person.id)) nameWrap.appendChild(starBadge());
 
     const count = document.createElement("span");
     count.className = "count";
@@ -359,7 +443,7 @@ function renderFamilyScreen() {
     dot.className = `status-dot status-${status}`;
     if (status === "complete") dot.style.setProperty("--accent", person.colour);
 
-    row.append(tile, name, count, dot);
+    row.append(tile, nameWrap, count, dot);
     wrap.appendChild(row);
 
     const details = document.createElement("div");
@@ -554,9 +638,35 @@ async function deleteExtra(id) {
 // Data refresh / polling
 // ============================================================================
 
+// Populates state.starWeekCompletions for the weekly-star calculation.
+// Only fetches on a Sat/Sun (the star is meaningless any other day); clears
+// it the rest of the week so nothing stale lingers past the 1am Monday
+// reset.
+async function refreshStarWeek() {
+  if (!isWeekend()) {
+    state.starWeekCompletions = null;
+    return;
+  }
+  const monToFri = mostRecentMonToFri(state.today);
+  const data = await api.getWeek(monToFri[4]);
+  const wanted = new Set(monToFri);
+  state.starWeekCompletions = new Set(
+    data.completions
+      .filter((c) => wanted.has(c.date))
+      .map((c) => `${c.date}|${c.person_id}|${c.chore_id}`)
+  );
+}
+
 async function refreshCurrentView() {
   state.today = computeToday();
   try {
+    await refreshStarWeek();
+
+    if (!state.personId) {
+      if (!el.screenPicker.hidden) renderPicker();
+      return;
+    }
+
     if (state.view === "chores") {
       const data = await api.getDay(state.today.dateStr);
       state.day.completions = new Set(
@@ -584,15 +694,12 @@ async function refreshCurrentView() {
 function startPolling() {
   setInterval(() => {
     if (document.visibilityState !== "visible") return;
-    if (!state.personId) return;
     refreshCurrentView();
   }, POLL_MS);
 
-  window.addEventListener("focus", () => {
-    if (state.personId) refreshCurrentView();
-  });
+  window.addEventListener("focus", refreshCurrentView);
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && state.personId) refreshCurrentView();
+    if (document.visibilityState === "visible") refreshCurrentView();
   });
 }
 
@@ -645,7 +752,7 @@ function init() {
   registerServiceWorker();
 
   render();
-  if (state.personId) refreshCurrentView();
+  refreshCurrentView();
   startPolling();
 }
 

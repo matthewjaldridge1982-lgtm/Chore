@@ -5,8 +5,10 @@ one shared screen** — a spare Windows device (e.g. a Surface Go) propped up
 somewhere central, running full-screen with no browser chrome. Walk up, tap
 your name, tick things off, tap "Switch person" for the next person. Can
 also log free-text "extras" — things they did that weren't on the list.
-There are no accounts, no passwords, no points, no streaks, and no
-notifications — just today's list, a progress bar, and a family overview.
+There are no accounts, no passwords, and no notifications — just today's
+list, a progress bar, and a family overview. Chores run Monday–Friday; a
+perfect Mon–Fri week earns a ⭐ next to your name for the weekend (see
+"The weekly star" below), clearing at 1am Monday when the new week starts.
 The frontend is plain HTML/CSS/JS (no build step, no npm dependencies) —
 only the backend differs depending on where you run it:
 
@@ -114,6 +116,21 @@ After editing, restart the server (close the `start.bat` window and
 double-click it again — or if it's running via the Startup folder, just
 reboot or re-launch it) so it picks up the change. If you're on the
 Cloudflare backend instead, redeploy.
+
+## The weekly star
+
+The starter chores in `config.js` only run Monday–Friday. Whenever someone
+ticks off every chore they had that Mon–Fri, a ⭐ appears next to their name
+— on the picker screen, in their own header, and in the Family view — for
+the rest of the weekend. It's computed live from that week's completions
+each time (nothing is stored as "the star" itself), and clears at **1am
+Monday**, not midnight, so the tail end of a late Sunday night (or an early
+riser before 1am Monday) still sees the weekend state. This is the one
+place the app's day boundary isn't ordinary local midnight — every other
+day-to-day transition still is.
+
+If you add a chore scheduled on a Saturday or Sunday, it's still fully
+usable, it just doesn't count toward the star (only weekdays 1–5 do).
 
 ## Installing on iOS
 

@@ -47,6 +47,21 @@
 // If you delete a chore or person entirely, any old completion/extra rows
 // for them simply stop being displayed (the API filters against this file's
 // current lists) — you don't need to clean up the database.
+//
+// -----------------------------------------------------------------------------
+// THE WEEKLY STAR
+// -----------------------------------------------------------------------------
+// This starter set only schedules chores on weekdays (days 1–5). Whenever
+// someone completes every chore they had that Monday–Friday, a ⭐ appears
+// against their name on the picker screen and in the Family view for the
+// rest of the weekend. It clears automatically at 1am Monday, when the new
+// week's tracking starts fresh (see app.js's effectiveNow()).
+//
+// This is computed live from that week's completions — nothing is stored
+// specifically as "the star". If you add a chore scheduled on a Saturday or
+// Sunday (day 0 or 6), it simply won't count toward the star (only days
+// 1–5 do); the app doesn't stop you from having weekend chores, they just
+// sit outside the Monday–Friday star calculation.
 // =============================================================================
 
 export const TIMEZONE = "Australia/Melbourne";
@@ -59,27 +74,27 @@ export const PEOPLE = [
 ];
 
 export const CHORES = [
-  // --- Ruby (7) ---
-  { id: "c1", person: "p1", label: "Make bed", emoji: "🛏️", days: "daily" },
-  { id: "c2", person: "p1", label: "Feed the cat", emoji: "🐱", days: "daily" },
+  // --- Ruby (7) --- all weekdays; a perfect Mon–Fri earns the weekly star.
+  { id: "c1", person: "p1", label: "Make bed", emoji: "🛏️", days: [1, 2, 3, 4, 5] },
+  { id: "c2", person: "p1", label: "Feed the cat", emoji: "🐱", days: [1, 2, 3, 4, 5] },
   { id: "c3", person: "p1", label: "Pack school bag", emoji: "🎒", days: [1, 2, 3, 4, 5] },
-  { id: "c4", person: "p1", label: "Toys away", emoji: "🧸", days: "daily" },
+  { id: "c4", person: "p1", label: "Toys away", emoji: "🧸", days: [1, 2, 3, 4, 5] },
 
   // --- Finn (11) ---
-  { id: "c5", person: "p2", label: "Make bed", emoji: "🛏️", days: "daily" },
+  { id: "c5", person: "p2", label: "Make bed", emoji: "🛏️", days: [1, 2, 3, 4, 5] },
   { id: "c6", person: "p2", label: "Empty dishwasher", emoji: "🍽️", days: [1, 3, 5] },
   { id: "c7", person: "p2", label: "Take out bins", emoji: "🗑️", days: [2, 5] },
-  { id: "c8", person: "p2", label: "Practice reading", emoji: "📖", days: "daily" },
+  { id: "c8", person: "p2", label: "Practice reading", emoji: "📖", days: [1, 2, 3, 4, 5] },
 
   // --- Mum ---
-  { id: "c9", person: "p3", label: "Cook dinner", emoji: "🍳", days: "daily" },
-  { id: "c10", person: "p3", label: "Wipe kitchen", emoji: "🧽", days: "daily" },
-  { id: "c11", person: "p3", label: "Water plants", emoji: "🪴", days: [0, 3] },
-  { id: "c12", person: "p3", label: "Laundry", emoji: "🧺", days: [1, 4, 6] },
+  { id: "c9", person: "p3", label: "Cook dinner", emoji: "🍳", days: [1, 2, 3, 4, 5] },
+  { id: "c10", person: "p3", label: "Wipe kitchen", emoji: "🧽", days: [1, 2, 3, 4, 5] },
+  { id: "c11", person: "p3", label: "Water plants", emoji: "🪴", days: [1, 3] },
+  { id: "c12", person: "p3", label: "Laundry", emoji: "🧺", days: [1, 4] },
 
   // --- Dad ---
-  { id: "c13", person: "p4", label: "Walk the dog", emoji: "🐕", days: "daily" },
+  { id: "c13", person: "p4", label: "Walk the dog", emoji: "🐕", days: [1, 2, 3, 4, 5] },
   { id: "c14", person: "p4", label: "Pack lunches", emoji: "🥪", days: [1, 2, 3, 4, 5] },
   { id: "c15", person: "p4", label: "Bins to kerb", emoji: "🚮", days: [1] },
-  { id: "c16", person: "p4", label: "Tidy lounge", emoji: "🛋️", days: "daily" },
+  { id: "c16", person: "p4", label: "Tidy lounge", emoji: "🛋️", days: [1, 2, 3, 4, 5] },
 ];
