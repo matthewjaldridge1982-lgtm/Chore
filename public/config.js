@@ -70,7 +70,7 @@ export const PEOPLE = [
   { id: "p1", name: "Rocco", emoji: "🕷️", colour: "#ff9500" },
   { id: "p2", name: "Leonardo", emoji: "🐧", colour: "#007aff" },
   { id: "p3", name: "Mum", emoji: "🐱", colour: "#34c759" },
-  { id: "p4", name: "Dad", emoji: "🦤", colour: "#af52de" },
+  { id: "p4", name: "Dad", emoji: "🐦‍⬛", colour: "#af52de" },
 ];
 
 export const CHORES = [
