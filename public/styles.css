@@ -600,3 +600,83 @@ button {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* ---------- Kiosk / large touchscreen (e.g. a Surface Go propped on a
+   counter, everyone tapping the same fixed screen at arm's length rather
+   than holding a phone) — same layout, bigger and more generous. ---------- */
+
+@media (min-width: 900px) {
+  :root {
+    font-size: 20px;
+  }
+
+  .screen {
+    max-width: 880px;
+    padding-top: 40px;
+  }
+
+  .picker-title {
+    font-size: 34px;
+    margin-bottom: 40px;
+  }
+
+  .picker-cards {
+    gap: 24px;
+  }
+
+  .picker-card {
+    padding: 40px 20px;
+    min-height: 240px;
+    border-radius: 26px;
+  }
+
+  .picker-card .emoji {
+    font-size: 76px;
+  }
+
+  .picker-card .name {
+    font-size: 28px;
+  }
+
+  .chores-count {
+    font-size: 26px;
+  }
+
+  .chore-row {
+    min-height: 80px;
+    padding: 8px 24px;
+    border-radius: 20px;
+  }
+
+  .chore-row .chore-emoji {
+    font-size: 38px;
+  }
+
+  .chore-row .chore-label {
+    font-size: 24px;
+  }
+
+  .chore-row .chore-tick {
+    width: 48px;
+    height: 48px;
+    font-size: 26px;
+  }
+
+  .extra-input,
+  .extra-add-btn {
+    min-height: 56px;
+  }
+
+  .family-person-row {
+    min-height: 76px;
+    padding: 10px 24px;
+  }
+
+  .family-person-row .emoji {
+    font-size: 34px;
+  }
+
+  .family-person-row .name {
+    font-size: 21px;
+  }
+}

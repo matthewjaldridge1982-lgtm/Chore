@@ -1,34 +1,35 @@
 # Family Chores
 
-A four-person family chore tracker. Everyone (two kids sharing an iPad, two
-adults each on their own phone) ticks off a daily chore list that syncs
-across devices within about 20 seconds, and can log free-text "extras" —
-things they did that weren't on the list. There are no accounts, no
-passwords, no points, no streaks, and no notifications — just today's list,
-a progress bar, and a family overview. The frontend is plain HTML/CSS/JS (no
-build step, no npm dependencies) — only the backend differs depending on
-where you run it:
+A four-person family chore tracker: **everyone ticks off their chores on
+one shared screen** — a spare Windows device (e.g. a Surface Go) propped up
+somewhere central, running full-screen with no browser chrome. Walk up, tap
+your name, tick things off, tap "Switch person" for the next person. Can
+also log free-text "extras" — things they did that weren't on the list.
+There are no accounts, no passwords, no points, no streaks, and no
+notifications — just today's list, a progress bar, and a family overview.
+The frontend is plain HTML/CSS/JS (no build step, no npm dependencies) —
+only the backend differs depending on where you run it:
 
 - **`server.js`** — a plain Node.js server for running it on a device you
-  already own (e.g. an old Windows laptop), reachable by every device on
-  your home Wi-Fi. **This is the recommended path** if you have a spare
-  always-on device — no cloud account, no URL to guard, nothing leaves the
-  house.
+  already own. **This is the recommended path.** No cloud account, no URL
+  to guard, nothing leaves the house.
 - **`functions/` + `wrangler.toml`** — Cloudflare Pages Functions + D1, for
-  hosting it on the public internet instead. Kept in this repo as an
+  hosting it on the public internet instead, if everyone has their own
+  phone rather than sharing one screen. Kept in this repo as an
   alternative; see the bottom of this file.
 
 Both backends implement the exact same `/api/day`, `/api/toggle`,
 `/api/extra`, `/api/week` contract and share the same `public/` frontend —
 picking one doesn't change how the app looks or behaves.
 
-## Running on a local Windows device
+## Running it on a shared Windows device (recommended)
 
-This turns a spare Windows 11 machine (like a Surface Go) into the family's
-always-on chore server. Every other device just opens a web address in its
-browser — nothing to install on the kids' iPad or the parents' phones.
+This turns a spare Windows 11 machine into a dedicated chore board: it
+starts the server and opens the app full-screen automatically, so the
+device itself becomes the thing everyone taps, like a household appliance
+rather than a computer.
 
-**1. Install Node.js on the Windows device** (one-time). Either:
+**1. Install Node.js on the device** (one-time). Either:
 
 - Download the **LTS installer** from [nodejs.org](https://nodejs.org) and
   run it, or
@@ -37,64 +38,59 @@ browser — nothing to install on the kids' iPad or the parents' phones.
 **2. Get this project onto the device** — download it as a ZIP from GitHub
 (Code → Download ZIP) and extract it, or `git clone` it if you have Git
 installed. Either way, end up with a folder containing `server.js`,
-`public/`, etc.
+`start-kiosk.bat`, `public/`, etc.
 
-**3. Start the server** — double-click **`start.bat`** in that folder. A
-console window opens and prints something like:
+**3. Double-click `start-kiosk.bat`.** It starts the server in the
+background, then opens Microsoft Edge full-screen with no address bar, tabs,
+or menu, showing the app. That's the whole setup — the screen now shows
+"Who's ticking off chores?" and anyone can walk up and tap their name.
 
-```
-Family Chores is running.
+The first time it runs, Windows will ask whether to let **Node.js
+JavaScript Runtime** communicate on networks — tick **Private networks**
+and click **Allow access**. (This only matters if you also want to check
+in from a phone occasionally, see below; the kiosk screen itself works
+either way since it's talking to itself.)
 
-  On this device:   http://localhost:3000
-  On other devices: http://192.168.1.42:3000
+To get out of the full-screen view (e.g. to edit `config.js`), press
+**Alt+F4** to close Edge. The server keeps running in its own minimized
+window in the taskbar; leave it running or close that too.
 
-(Everyone must be on the same Wi-Fi/network as this device.)
-```
+If you'd rather see the server's log output, or Edge isn't available,
+double-click **`start.bat`** instead — it starts the server in a normal
+console window without launching a kiosk browser, so you can open the app
+in any browser tab yourself.
 
-Leave that window open — closing it stops the server. (You can also run
-`node server.js` directly from a terminal instead of using `start.bat`.)
-
-**4. Allow it through the Windows Firewall.** The first time it starts,
-Windows will pop up a prompt asking whether to let **Node.js JavaScript
-Runtime** communicate on networks. Tick **Private networks** and click
-**Allow access**. Miss this and the server still works on the device
-itself (`localhost`) but no other device will be able to reach it. If you
-missed the prompt, open **Windows Security → Firewall & network protection
-→ Allow an app through firewall** and enable Node.js for Private networks.
-
-**5. Open that "on other devices" address** in Safari on the iPad, and in
-each phone's browser. Same address for everyone, since they're all just
-talking to the one server on the Windows device. Bookmark it, or use "Add to
-Home Screen" (see below) so it's one tap.
-
-**Keeping it always-on:** a Surface Go will go to sleep and drop off the
-network unless you tell it not to. On the Windows device: **Settings →
-System → Power & sleep** → set "When plugged in, put my device to sleep
-after" to **Never**, and (if it'll run with the lid closed) **Control Panel
-→ Power Options → Choose what closing the lid does** → set to **Do
-nothing**. Keep it plugged in.
+**Keeping it always-on:** a laptop that sleeps drops off and stops
+responding to taps. On the device: **Settings → System → Power & sleep** →
+set "When plugged in, put my device to sleep after" to **Never**, and (if
+it'll run lid-closed) **Control Panel → Power Options → Choose what closing
+the lid does** → set to **Do nothing**. Keep it plugged in.
 
 **Starting automatically on boot** (optional, so you don't have to
-double-click `start.bat` after every reboot): press `Win+R`, type
-`shell:startup`, hit Enter — that opens your Startup folder. Right-click
-`start.bat` → **Show more options → Create shortcut**, then drag that
-shortcut into the Startup folder. Windows will now launch the server
-automatically whenever you sign in.
+double-click anything after a reboot): press `Win+R`, type `shell:startup`,
+hit Enter — that opens your Startup folder. Right-click `start-kiosk.bat` →
+**Show more options → Create shortcut**, then drag that shortcut into the
+Startup folder. The device now boots straight into the chore board.
 
 **Where the data lives:** a `data/store.json` file next to `server.js`,
 created automatically on first run. That file *is* the database — back it
 up like you would any other file you care about (copy it somewhere
 occasionally), and don't delete it unless you want to wipe all history.
 
+**Bonus — checking in from a phone:** the server still listens on the
+network (not just the kiosk screen itself), so if you're on the same Wi-Fi
+you can open `http://<the device's LAN address>:3000` — shown in the
+server's console window — from a phone to peek at the family view from the
+couch. Entirely optional; the app works fully without ever doing this.
+
 **A note on HTTPS:** the local server is plain HTTP (`http://`, not
 `https://`) — setting up a trusted certificate for a home LAN address isn't
 worth the hassle here. Everything in the app itself works fine over plain
-HTTP (ticking chores, extras, the family view, syncing). The one thing that
-doesn't: browsers only allow a page to register a Service Worker over HTTPS
-or on `localhost`, so on the phones/iPad (which load the app from a LAN IP,
-not `localhost`) the offline app-shell caching in `public/sw.js` won't
-activate — the app just quietly skips it and works as a normal (non-cached)
-web page instead. "Add to Home Screen" still works fine on iOS regardless.
+HTTP. The one thing that doesn't: browsers only allow a page to register a
+Service Worker over HTTPS or on `localhost`. The kiosk screen itself loads
+from `localhost`, so that's unaffected; only the optional phone bonus above
+(loading from a LAN IP) skips the offline app-shell caching in
+`public/sw.js` — it quietly works as a normal, non-cached page instead.
 
 ## Adding or removing a person or chore
 
