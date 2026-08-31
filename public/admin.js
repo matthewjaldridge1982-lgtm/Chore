@@ -167,6 +167,9 @@ function renderChoreRow(chore) {
   const row = document.createElement("div");
   row.className = "admin-chore-row";
 
+  const top = document.createElement("div");
+  top.className = "admin-chore-top";
+
   const emoji = document.createElement("span");
   emoji.className = "admin-chore-emoji";
   emoji.textContent = chore.emoji;
@@ -175,19 +178,23 @@ function renderChoreRow(chore) {
   label.className = "admin-chore-label";
   label.textContent = chore.label;
 
-  const peopleRow = document.createElement("div");
-  peopleRow.className = "admin-chip-row admin-chip-row-compact";
-  for (const person of PEOPLE) {
-    const chip = document.createElement("button");
-    chip.type = "button";
-    const active = chore.person_id === person.id;
-    chip.className = "admin-chip admin-chip-small" + (active ? " active" : "");
-    chip.style.setProperty("--accent", person.colour);
-    chip.textContent = person.emoji;
-    chip.title = `Assign to ${person.name}`;
-    chip.addEventListener("click", () => reassignChore(chore, person.id));
-    peopleRow.appendChild(chip);
-  }
+  // Exactly one person owns a chore record — shown as a single pill
+  // naming them, not a pair of chips (which read as "pick any
+  // combination" when what they actually did was move ownership between
+  // two mutually-exclusive states). Tap it to hand the chore to the other
+  // person; the ↔ makes that a swap, not a toggle you might misread as
+  // "both". "Duplicate" below is how the same chore ends up with both.
+  const owner = personById[chore.person_id];
+  const assigneeBtn = document.createElement("button");
+  assigneeBtn.type = "button";
+  assigneeBtn.className = "admin-assignee";
+  assigneeBtn.style.setProperty("--accent", owner.colour);
+  assigneeBtn.innerHTML = `<span>${owner.emoji} ${owner.name}</span><span class="admin-assignee-swap" aria-hidden="true">⇄</span>`;
+  const otherPerson = PEOPLE.find((p) => p.id !== chore.person_id) || PEOPLE[0];
+  assigneeBtn.title = `Move to ${otherPerson.name}`;
+  assigneeBtn.addEventListener("click", () => reassignChore(chore, otherPerson.id));
+
+  top.append(emoji, label, assigneeBtn);
 
   const daysRow = document.createElement("div");
   daysRow.className = "admin-day-row admin-day-row-compact";
@@ -201,6 +208,17 @@ function renderChoreRow(chore) {
     daysRow.appendChild(pill);
   }
 
+  const actions = document.createElement("div");
+  actions.className = "admin-chore-actions";
+
+  const duplicateBtn = document.createElement("button");
+  duplicateBtn.type = "button";
+  duplicateBtn.className = "admin-duplicate-btn";
+  duplicateBtn.setAttribute("aria-label", `Duplicate ${chore.label} for ${otherPerson.name}`);
+  duplicateBtn.title = `Duplicate for ${otherPerson.name}`;
+  duplicateBtn.innerHTML = `⧉ <span>Duplicate for ${otherPerson.emoji} ${otherPerson.name}</span>`;
+  duplicateBtn.addEventListener("click", () => duplicateChore(chore, otherPerson.id));
+
   const deleteBtn = document.createElement("button");
   deleteBtn.type = "button";
   deleteBtn.className = "admin-delete-btn";
@@ -208,7 +226,9 @@ function renderChoreRow(chore) {
   deleteBtn.textContent = "✕";
   deleteBtn.addEventListener("click", () => deleteChore(chore));
 
-  row.append(emoji, label, peopleRow, daysRow, deleteBtn);
+  actions.append(duplicateBtn, deleteBtn);
+
+  row.append(top, daysRow, actions);
   return row;
 }
 
@@ -252,6 +272,31 @@ async function deleteChore(chore) {
     chores.push(chore);
     renderChoresList();
     showBanner(err.message || "Couldn't delete that chore.");
+  }
+}
+
+// Makes an independent copy of a chore for another person — same label,
+// emoji, and days, but its own record, so each person's copy can later be
+// rescheduled or deleted separately. This is how the same chore ends up
+// belonging to both people, since a single chore record only ever has one
+// owner (see renderChoreRow).
+async function duplicateChore(chore, personId) {
+  const tempId = `temp-${Math.random().toString(36).slice(2)}`;
+  const copy = { id: tempId, person_id: personId, label: chore.label, emoji: chore.emoji, days: [...chore.days] };
+  chores.push(copy);
+  renderChoresList();
+  try {
+    const result = await api.createChore({
+      person_id: personId,
+      label: chore.label,
+      emoji: chore.emoji,
+      days: chore.days,
+    });
+    copy.id = result.id;
+  } catch (err) {
+    chores = chores.filter((c) => c !== copy);
+    renderChoresList();
+    showBanner(err.message || "Couldn't duplicate that chore.");
   }
 }
 

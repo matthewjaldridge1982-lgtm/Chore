@@ -996,34 +996,28 @@ button {
   gap: 8px;
 }
 
+/* Unselected chips are deliberately neutral (no colour at all) so the
+   selected one — solid-filled in the person's colour, white text — is
+   unmistakable rather than a subtle tint on an already-coloured border. */
 .admin-chip {
   min-height: 40px;
   padding: 0 14px;
   border-radius: 999px;
-  border: 1.5px solid var(--accent, var(--separator));
-  background: transparent;
-  color: var(--ink);
+  border: 1.5px solid var(--separator);
+  background: var(--surface);
+  color: var(--ink-secondary);
   font-size: 14px;
   font-weight: 600;
-  transition: background 0.15s var(--ease-out), transform 0.15s var(--ease-out);
+  transition: background 0.15s var(--ease-out), border-color 0.15s var(--ease-out), color 0.15s var(--ease-out),
+    transform 0.15s var(--ease-out);
 }
 .admin-chip:active {
   transform: scale(0.96);
 }
 .admin-chip.active {
-  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
-  border-color: var(--accent);
-}
-
-.admin-chip-small {
-  min-height: 36px;
-  min-width: 36px;
-  padding: 0 10px;
-  font-size: 16px;
-}
-
-.admin-chip-row-compact {
-  gap: 6px;
+  background: var(--accent, var(--ink));
+  border-color: var(--accent, var(--ink));
+  color: #fff;
 }
 
 .admin-day-row {
@@ -1086,14 +1080,19 @@ button {
 
 .admin-chore-row {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
-  padding: 10px 0;
+  padding: 12px 0;
   border-bottom: 0.5px solid var(--separator);
 }
 .admin-person-group .admin-chore-row:last-of-type {
   border-bottom: none;
+}
+
+.admin-chore-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .admin-chore-emoji {
@@ -1104,8 +1103,60 @@ button {
 .admin-chore-label {
   font-size: 15px;
   font-weight: 600;
-  flex: 1 1 140px;
+  flex: 1 1 auto;
   min-width: 0;
+}
+
+/* The single "who owns this" pill — see the comment in admin.js's
+   renderChoreRow for why this replaced a pair of person chips. */
+.admin-assignee {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  transition: transform 0.15s var(--ease-out);
+}
+.admin-assignee:active {
+  transform: scale(0.95);
+}
+.admin-assignee-swap {
+  opacity: 0.85;
+  font-size: 12px;
+}
+
+.admin-day-row-compact {
+  padding-left: 30px;
+}
+
+.admin-chore-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.admin-duplicate-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--ink-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  transition: transform 0.15s var(--ease-out);
+}
+.admin-duplicate-btn:active {
+  transform: scale(0.95);
 }
 
 .admin-delete-btn {
@@ -1116,7 +1167,6 @@ button {
   background: var(--surface-2);
   color: var(--ink-secondary);
   font-size: 13px;
-  margin-left: auto;
   transition: transform 0.15s var(--ease-out);
 }
 .admin-delete-btn:active {

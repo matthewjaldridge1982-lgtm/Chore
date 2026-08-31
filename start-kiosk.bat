@@ -31,19 +31,35 @@ start "Family Chores Server" /min cmd /k node server.js
 REM Give the server a moment to come up before pointing a browser at it.
 timeout /t 2 /nobreak >nul
 
-where msedge >nul 2>nul
-if errorlevel 1 (
+REM Prefer the real msedge.exe at its standard install path over the
+REM `msedge` App Execution Alias `where` would otherwise resolve to — that
+REM alias is a thin stub, and has been unreliable at forwarding a full
+REM --kiosk/--edge-kiosk-type/--user-data-dir combination through to the
+REM real browser process on some Windows builds.
+set "EDGE_EXE="
+if exist "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" set "EDGE_EXE=%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"
+if not defined EDGE_EXE if exist "%ProgramFiles%\Microsoft\Edge\Application\msedge.exe" set "EDGE_EXE=%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"
+if not defined EDGE_EXE (
+  where msedge >nul 2>nul
+  if not errorlevel 1 set "EDGE_EXE=msedge"
+)
+
+if not defined EDGE_EXE (
   echo Microsoft Edge wasn't found — opening in your default browser instead
   echo ^(no full-screen kiosk mode without Edge^).
   start "" http://localhost:3000
-) else (
-  REM If Edge is already running, --kiosk gets silently ignored and just
-  REM opens a normal window in that existing session — so close any open
-  REM Edge windows first to force a genuine fullscreen kiosk launch. This
-  REM closes anything else you had open in Edge; that's expected on a
-  REM dedicated kiosk device, less so if you sometimes browse normally on
-  REM this machine.
-  taskkill /IM msedge.exe /F >nul 2>nul
-  timeout /t 1 /nobreak >nul
-  start "" msedge --kiosk http://localhost:3000 --edge-kiosk-type=fullscreen --no-first-run --user-data-dir="%LOCALAPPDATA%\FamilyChoresKiosk"
+  goto :eof
 )
+
+REM If Edge is already running, --kiosk gets silently ignored and just
+REM opens a normal window in that existing session — so close any open
+REM Edge windows first to force a genuine fullscreen kiosk launch. This
+REM closes anything else you had open in Edge; that's expected on a
+REM dedicated kiosk device, less so if you sometimes browse normally on
+REM this machine. Edge's background/renderer processes can take a moment
+REM to fully release their lock on the profile, so wait a couple of
+REM seconds after killing before launching the new instance.
+taskkill /IM msedge.exe /F >nul 2>nul
+timeout /t 2 /nobreak >nul
+
+start "" "%EDGE_EXE%" --kiosk http://localhost:3000 --edge-kiosk-type=fullscreen --no-first-run --user-data-dir="%LOCALAPPDATA%\FamilyChoresKiosk"
