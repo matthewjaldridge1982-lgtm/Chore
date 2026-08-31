@@ -37,5 +37,13 @@ if errorlevel 1 (
   echo ^(no full-screen kiosk mode without Edge^).
   start "" http://localhost:3000
 ) else (
-  start "" msedge --kiosk http://localhost:3000 --edge-kiosk-type=fullscreen --no-first-run
+  REM If Edge is already running, --kiosk gets silently ignored and just
+  REM opens a normal window in that existing session — so close any open
+  REM Edge windows first to force a genuine fullscreen kiosk launch. This
+  REM closes anything else you had open in Edge; that's expected on a
+  REM dedicated kiosk device, less so if you sometimes browse normally on
+  REM this machine.
+  taskkill /IM msedge.exe /F >nul 2>nul
+  timeout /t 1 /nobreak >nul
+  start "" msedge --kiosk http://localhost:3000 --edge-kiosk-type=fullscreen --no-first-run --user-data-dir="%LOCALAPPDATA%\FamilyChoresKiosk"
 )

@@ -685,6 +685,19 @@ button {
   box-shadow: var(--shadow-card);
 }
 
+/* Deliberately understated — this is a parents' link, not something meant
+   to invite tapping by a kid scrolling through the Family view. */
+.manage-chores-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 32px;
+  font-size: 13px;
+  color: var(--ink-secondary);
+  text-decoration: none;
+}
+
 .week-grid {
   display: grid;
   min-width: 480px;
@@ -874,6 +887,229 @@ button {
   .family-person-row .name {
     font-size: 20px;
   }
+}
+
+/* ==========================================================================
+   Admin page (/admin.html) — a parents' settings screen, not kid-facing.
+   Denser and more utilitarian than the rest of the app on purpose: real
+   labels instead of emoji-only, smaller tap targets are fine here since
+   it's an occasional-use tool, not something a 7-year-old operates.
+   ========================================================================== */
+
+.admin-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px calc(48px + env(safe-area-inset-bottom, 0px));
+}
+
+.admin-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.admin-header h1 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.admin-back-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.admin-card {
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.admin-card h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 16px;
+}
+
+.admin-field {
+  margin-bottom: 16px;
+}
+.admin-field:last-of-type {
+  margin-bottom: 20px;
+}
+
+.admin-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  margin-bottom: 6px;
+}
+
+.admin-field input[type="text"] {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.admin-emoji-input {
+  max-width: 100px;
+  font-size: 22px !important;
+  text-align: center;
+}
+
+.admin-hint {
+  font-size: 12.5px;
+  color: var(--ink-secondary);
+  margin: 6px 0 0;
+}
+
+.admin-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-chip {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--accent, var(--separator));
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s var(--ease-out), transform 0.15s var(--ease-out);
+}
+.admin-chip:active {
+  transform: scale(0.96);
+}
+.admin-chip.active {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  border-color: var(--accent);
+}
+
+.admin-chip-small {
+  min-height: 36px;
+  min-width: 36px;
+  padding: 0 10px;
+  font-size: 16px;
+}
+
+.admin-chip-row-compact {
+  gap: 6px;
+}
+
+.admin-day-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-day-pill {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--ink-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 0.15s var(--ease-out), color 0.15s var(--ease-out), transform 0.15s var(--ease-out);
+}
+.admin-day-pill:active {
+  transform: scale(0.92);
+}
+.admin-day-pill.active {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.admin-day-row-compact .admin-day-pill {
+  width: 30px;
+  height: 30px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+.admin-submit-btn {
+  min-height: 46px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 700;
+  font-size: 15px;
+}
+.admin-submit-btn:active {
+  transform: scale(0.97);
+}
+
+.admin-person-group {
+  margin-bottom: 20px;
+}
+.admin-person-group:last-child {
+  margin-bottom: 0;
+}
+
+.admin-person-heading {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.admin-chore-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 0.5px solid var(--separator);
+}
+.admin-person-group .admin-chore-row:last-of-type {
+  border-bottom: none;
+}
+
+.admin-chore-emoji {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.admin-chore-label {
+  font-size: 15px;
+  font-weight: 600;
+  flex: 1 1 140px;
+  min-width: 0;
+}
+
+.admin-delete-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--ink-secondary);
+  font-size: 13px;
+  margin-left: auto;
+  transition: transform 0.15s var(--ease-out);
+}
+.admin-delete-btn:active {
+  transform: scale(0.9);
 }
 
 @media (prefers-reduced-motion: reduce) {

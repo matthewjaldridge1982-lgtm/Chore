@@ -1,28 +1,31 @@
 # Family Chores
 
-A four-person family chore tracker: **everyone ticks off their chores on
-one shared screen** — a spare Windows device (e.g. a Surface Go) propped up
-somewhere central, running full-screen with no browser chrome. Walk up, tap
-your name, tick things off, tap "Switch person" for the next person. Can
-also log free-text "extras" — things they did that weren't on the list.
-There are no accounts, no passwords, and no notifications — just today's
-list, a progress bar, and a family overview. Chores run Monday–Friday; a
-perfect Mon–Fri week earns a ⭐ next to your name for the weekend (see
-"The weekly star" below), clearing at 1am Monday when the new week starts.
-The frontend is plain HTML/CSS/JS (no build step, no npm dependencies) —
-only the backend differs depending on where you run it:
+A family chore tracker: **everyone ticks off their chores on one shared
+screen** — a spare Windows device (e.g. a Surface Go) propped up somewhere
+central, running full-screen with no browser chrome. Walk up, tap your
+name, tick things off, tap "Switch person" for the next person. Can also
+log free-text "extras" — things they did that weren't on the list. There
+are no accounts, no passwords, and no notifications — just today's list, a
+progress bar, and a family overview. Chores run Monday–Friday; a perfect
+Mon–Fri week earns a ⭐ next to your name for the weekend (see "The weekly
+star" below), clearing at 1am Monday when the new week starts. The
+frontend is plain HTML/CSS/JS (no build step, no npm dependencies) — only
+the backend differs depending on where you run it:
 
 - **`server.js`** — a plain Node.js server for running it on a device you
-  already own. **This is the recommended path.** No cloud account, no URL
-  to guard, nothing leaves the house.
+  already own. **This is the recommended path, and the only one that
+  supports the /admin chore-management page below.** No cloud account, no
+  URL to guard, nothing leaves the house.
 - **`functions/` + `wrangler.toml`** — Cloudflare Pages Functions + D1, for
   hosting it on the public internet instead, if everyone has their own
   phone rather than sharing one screen. Kept in this repo as an
-  alternative; see the bottom of this file.
+  alternative, but hasn't been kept in sync with the chore-management
+  feature below — see the bottom of this file for the gap.
 
-Both backends implement the exact same `/api/day`, `/api/toggle`,
-`/api/extra`, `/api/week` contract and share the same `public/` frontend —
-picking one doesn't change how the app looks or behaves.
+Who's in the family lives in `public/config.js` (edit by hand — see
+"Adding or removing a person" below); chores themselves are managed live
+from the **`/admin.html`** page instead of a file, on the `server.js`
+backend.
 
 ## Running it on a shared Windows device (recommended)
 
@@ -46,6 +49,13 @@ installed. Either way, end up with a folder containing `server.js`,
 background, then opens Microsoft Edge full-screen with no address bar, tabs,
 or menu, showing the app. That's the whole setup — the screen now shows
 "Who's ticking off chores?" and anyone can walk up and tap their name.
+
+If Edge was already open on the device, this closes it first — Edge
+silently ignores full-screen kiosk mode if it's already running, so
+`start-kiosk.bat` force-closes any existing Edge windows to guarantee a
+genuine kiosk launch. Expected and harmless on a dedicated kiosk device;
+worth knowing if you sometimes also browse normally on this machine, since
+it'll close those windows too.
 
 The first time it runs, Windows will ask whether to let **Node.js
 JavaScript Runtime** communicate on networks — tick **Private networks**
@@ -94,43 +104,71 @@ from `localhost`, so that's unaffected; only the optional phone bonus above
 (loading from a LAN IP) skips the offline app-shell caching in
 `public/sw.js` — it quietly works as a normal, non-cached page instead.
 
-## Adding or removing a person or chore
+## Adding or removing a person
 
-Everything about people and chores lives in **`public/config.js`** —
-nothing is stored in the database or editable from the UI. Open that file;
-there's a comment block at the top with the full rules, summarised here:
+Who's in the family lives in **`public/config.js`**, hand-edited — there's
+a comment block at the top of that file with the full rules, summarised
+here:
 
-- **Add a person:** add an entry to the `PEOPLE` array with a new, never-reused
-  `id`, a `name`, an `emoji`, and a hex `colour`. Then add their chores to
-  `CHORES` (see below). No other file needs to change — the layout
-  automatically flexes to fit anywhere from 3 to 6 people.
-- **Remove a person:** delete their entry from `PEOPLE` (and, if you like,
-  their chores from `CHORES` — leftover rows are simply ignored).
-- **Add/change a chore:** add or edit an entry in `CHORES`. Each needs an
-  `id` (unique across *all* chores, never reused), the owning `person` id, a
-  short `label`, an `emoji`, and `days` — either `"daily"` or an array of
-  weekday numbers (`0` = Sunday … `6` = Saturday).
-- **Remove a chore:** delete its entry from `CHORES`.
+- **Add a person:** add an entry to the `PEOPLE` array with a new,
+  never-reused `id`, a `name`, an `emoji`, and a hex `colour`. No other
+  file needs to change — the layout automatically flexes to fit anywhere
+  from 2 to 6 people. Then give them some chores from the `/admin` page
+  (see below).
+- **Remove a person:** delete their entry from `PEOPLE`. Their chores on
+  the `/admin` page now point at someone who no longer exists — delete
+  those too.
 
-After editing, restart the server (close the `start.bat` window and
-double-click it again — or if it's running via the Startup folder, just
-reboot or re-launch it) so it picks up the change. If you're on the
-Cloudflare backend instead, redeploy.
+After editing, restart the server (close the `start-kiosk.bat`/`start.bat`
+window and double-click it again — or if it's running via the Startup
+folder, just reboot or re-launch it) so it picks up the change.
+
+## Managing chores
+
+Unlike people, chores aren't in a file — they live in the database and are
+managed from **`/admin.html`** (e.g. `http://localhost:3000/admin.html`),
+reachable from a small "⚙️ Manage chores" link at the bottom of the Family
+view, or by typing the address directly. No restart needed; changes show
+up on the kiosk screen within its normal ~20-second refresh.
+
+On that page you can:
+
+- **Add a chore** — emoji, a short label, tick who it's for (tick both to
+  add the same chore for each person separately), tick which days it's
+  scheduled on.
+- **Reassign a chore** — tap the other person's chip on an existing chore
+  to move it to them.
+- **Reschedule a chore** — tap a day letter to toggle it on/off. A chore
+  needs at least one day; delete it instead if it's genuinely done for
+  good.
+- **Delete a chore** — the ✕ button. Deleting doesn't touch any history
+  already recorded against it; that day's ticks just stop being shown,
+  same as if you'd deleted a person.
+
+There's no confirmation step on any of this, matching the rest of the
+app — a delete is immediate. Nothing here is kid-facing or advertised
+prominently on the kiosk screen on purpose, but it also isn't
+password-protected (see "Security" below) — anyone who finds the link or
+guesses the address can use it.
+
+The first time `server.js` runs against an empty database, it seeds a
+small Monday–Friday starter set for whoever is first and second in
+`PEOPLE` at that point — from there, `/admin.html` is the only way to
+change chores; nothing about them lives in `config.js` anymore.
 
 ## The weekly star
 
-The starter chores in `config.js` only run Monday–Friday. Whenever someone
-ticks off every chore they had that Mon–Fri, a ⭐ appears next to their name
-— on the picker screen, in their own header, and in the Family view — for
-the rest of the weekend. It's computed live from that week's completions
-each time (nothing is stored as "the star" itself), and clears at **1am
-Monday**, not midnight, so the tail end of a late Sunday night (or an early
-riser before 1am Monday) still sees the weekend state. This is the one
-place the app's day boundary isn't ordinary local midnight — every other
-day-to-day transition still is.
+Whenever someone ticks off every chore they had that Mon–Fri, a ⭐ appears
+next to their name — on the picker screen, in their own header, and in the
+Family view — for the rest of the weekend. It's computed live from that
+week's completions each time (nothing is stored as "the star" itself), and
+clears at **1am Monday**, not midnight, so the tail end of a late Sunday
+night (or an early riser before 1am Monday) still sees the weekend state.
+This is the one place the app's day boundary isn't ordinary local
+midnight — every other day-to-day transition still is.
 
-If you add a chore scheduled on a Saturday or Sunday, it's still fully
-usable, it just doesn't count toward the star (only weekdays 1–5 do).
+A chore scheduled on a Saturday or Sunday is still fully usable, it just
+doesn't count toward the star (only weekdays 1–5 do).
 
 ## Installing on iOS
 
@@ -147,22 +185,28 @@ when it detects it's running in iOS Safari (not already installed).
 ## Security — please read
 
 **There is no authentication.** Anyone who can reach the server can read
-and write every family member's chores and extras. Running it on your own
-home Wi-Fi (the recommended local-Windows setup above) is itself the main
-safeguard — it's simply not reachable from outside your house. If you
-instead deploy the Cloudflare version to the public internet, the only
-protection is that the URL is unguessable if you don't share it. Either
-way, this is a deliberate trade-off: a four-person family chore app where a
-7-year-old has to use it unassisted cannot have a login screen. Do not add
-authentication — if you need it, this app is the wrong starting point.
+and write every family member's chores and extras — and, via
+`/admin.html`, add, reassign, reschedule, or delete chores entirely.
+Running it on your own home Wi-Fi (the recommended local-Windows setup
+above) is itself the main safeguard — it's simply not reachable from
+outside your house. If you instead deploy the Cloudflare version to the
+public internet, the only protection is that the URL is unguessable if you
+don't share it. Either way, this is a deliberate trade-off: a family chore
+app where a young kid has to use it unassisted cannot have a login screen.
+Do not add authentication — if you need it, this app is the wrong starting
+point.
 
 Basic abuse hygiene that *is* in place regardless of backend:
 
 - Extras are capped at 200 characters, enforced on the server (not just the
   client) — see `server.js` (local) or `functions/api/extra.js` (Cloudflare).
-- `person_id` and `chore_id` are validated against an allow-list derived
-  from `public/config.js` on every request — unknown ids are rejected with
-  a 400, never silently written.
+- `person_id` is validated against an allow-list derived from
+  `public/config.js` on every request — unknown ids are rejected with a
+  400, never silently written. On the local `server.js` backend, `chore_id`
+  is checked the same way against whatever currently exists in the
+  database; the (out-of-sync, see below) Cloudflare backend no longer has a
+  chore list to check it against, since chores now live only in the local
+  backend's database.
 - `date` values are validated as `YYYY-MM-DD` and must fall within a small
   window of the server's real UTC date, so the API can't be used to write
   arbitrary historical or future rows.
@@ -191,6 +235,16 @@ Everything below is for hosting the app on the public internet via
 Cloudflare instead of a local device. It uses the same frontend
 (`public/`) with a different backend (`functions/api/*.js` + a D1
 database, defined in `wrangler.toml` and `schema.sql`).
+
+**This backend does not have the chore-management feature described
+above.** Chores were moved out of `config.js` into a database only for the
+local `server.js` backend, since that's the one actually in use — there's
+no `/api/chores` on this one, `/admin.html` won't work against it, and
+`schema.sql`/D1 were never given a `chores` table. If you want to pick this
+backend back up, it needs the same `/api/chores` endpoints (see
+`server.js`'s `handleGetChores`/`handleCreateChore`/`handleUpdateChore`/
+`handleDeleteChore` for the contract to match) backed by a D1 table instead
+of the JSON file, plus the D1 schema migration to create it.
 
 > **A note on the setup commands below:** outbound access to
 > `developers.cloudflare.com` was blocked in the environment this was built

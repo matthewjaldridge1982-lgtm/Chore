@@ -1,10 +1,17 @@
 // Shared helpers for the API functions. Imports the SAME config.js used by
-// the frontend (public/config.js) so people/chore ids are validated against
-// one source of truth — never duplicated here.
-import { PEOPLE, CHORES } from "../../public/config.js";
+// the frontend (public/config.js) so person ids are validated against one
+// source of truth — never duplicated here.
+//
+// NOTE: chores moved out of config.js and into a database managed from
+// /admin.html (see server.js and public/admin.js) — that migration was
+// only done for the local Node backend, not this Cloudflare Pages
+// Functions one, since it isn't the one actually in use. isValidChore()
+// below can no longer check chore ids against a static list as a result;
+// if you pick this backend back up, give it the same D1-backed
+// /api/chores endpoints server.js has and restore a real check here.
+import { PEOPLE } from "../../public/config.js";
 
 export const PERSON_IDS = new Set(PEOPLE.map((p) => p.id));
-export const CHORE_IDS = new Set(CHORES.map((c) => c.id));
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -38,7 +45,9 @@ export function isValidPerson(id) {
 }
 
 export function isValidChore(id) {
-  return typeof id === "string" && CHORE_IDS.has(id);
+  // No static chore list to check against anymore (see the note above) —
+  // this only guards against the obviously-wrong shape now.
+  return typeof id === "string" && id.length > 0;
 }
 
 export function json(data, status = 200) {

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Manage Chores</title>
+<link rel="icon" href="/icons/icon-192.png" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+<div id="banner" class="banner" hidden role="alert"></div>
+
+<div class="admin-page">
+  <header class="admin-header">
+    <h1>Manage chores</h1>
+    <a href="/" class="admin-back-link">← Back to the app</a>
+  </header>
+
+  <section class="admin-card">
+    <h2>Add a chore</h2>
+    <form id="add-chore-form">
+      <div class="admin-field">
+        <label for="add-emoji">Emoji</label>
+        <input id="add-emoji" class="admin-emoji-input" type="text" maxlength="8" placeholder="🧹" required autocomplete="off" />
+      </div>
+
+      <div class="admin-field">
+        <label for="add-label">What is it?</label>
+        <input id="add-label" type="text" maxlength="60" placeholder="e.g. Water the plants" required autocomplete="off" />
+      </div>
+
+      <div class="admin-field">
+        <label>Who's it for?</label>
+        <div id="add-people" class="admin-chip-row"></div>
+        <p class="admin-hint">Tick both to add the same chore for each of them.</p>
+      </div>
+
+      <div class="admin-field">
+        <label>Which days?</label>
+        <div id="add-days" class="admin-day-row"></div>
+        <p class="admin-hint">Only Monday–Friday chores count toward the weekly star.</p>
+      </div>
+
+      <button type="submit" class="admin-submit-btn">Add chore</button>
+    </form>
+  </section>
+
+  <section class="admin-card">
+    <h2>All chores</h2>
+    <div id="chores-by-person"></div>
+  </section>
+</div>
+
+<script type="module" src="/admin.js"></script>
+</body>
+</html>

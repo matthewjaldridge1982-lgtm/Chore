@@ -18,7 +18,7 @@ import path from "node:path";
 import os from "node:os";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { PEOPLE, CHORES } from "./public/config.js";
+import { PEOPLE } from "./public/config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "public");
@@ -27,7 +27,21 @@ const DATA_FILE = path.join(DATA_DIR, "store.json");
 const PORT = Number(process.env.PORT) || 3000;
 
 const PERSON_IDS = new Set(PEOPLE.map((p) => p.id));
-const CHORE_IDS = new Set(CHORES.map((c) => c.id));
+
+// Chores now live in the database (edited via /admin.html), not config.js —
+// this is only the one-time seed used the very first time the server runs
+// against an empty store, so existing installs keep the same starter set
+// and ids (any completions already ticked against these ids stay valid).
+const DEFAULT_CHORES = [
+  { id: "c1", person_id: "p1", label: "Make bed", emoji: "🛏️", days: [1, 2, 3, 4, 5] },
+  { id: "c2", person_id: "p1", label: "Feed the cat", emoji: "🐱", days: [1, 2, 3, 4, 5] },
+  { id: "c3", person_id: "p1", label: "Pack school bag", emoji: "🎒", days: [1, 2, 3, 4, 5] },
+  { id: "c4", person_id: "p1", label: "Toys away", emoji: "🧸", days: [1, 2, 3, 4, 5] },
+  { id: "c5", person_id: "p2", label: "Make bed", emoji: "🛏️", days: [1, 2, 3, 4, 5] },
+  { id: "c6", person_id: "p2", label: "Empty dishwasher", emoji: "🍽️", days: [1, 3, 5] },
+  { id: "c7", person_id: "p2", label: "Take out bins", emoji: "🗑️", days: [2, 5] },
+  { id: "c8", person_id: "p2", label: "Practice reading", emoji: "📖", days: [1, 2, 3, 4, 5] },
+];
 
 // ============================================================================
 // Tiny JSON "database" — loaded once into memory, persisted after every
@@ -37,8 +51,8 @@ const CHORE_IDS = new Set(CHORES.map((c) => c.id));
 // so a crash mid-write never leaves a half-written store.json behind.
 // ============================================================================
 
-/** @type {{ completions: Record<string, object>, extras: Record<string, object> }} */
-let db = { completions: {}, extras: {} };
+/** @type {{ completions: Record<string, object>, extras: Record<string, object>, chores?: Record<string, object> }} */
+let db = { completions: {}, extras: {} }; // chores is intentionally absent — see loadDb()
 let writeQueue = Promise.resolve();
 
 async function loadDb() {
@@ -52,6 +66,13 @@ async function loadDb() {
   }
   db.completions ||= {};
   db.extras ||= {};
+  // Seed only if `chores` has never existed in the store — NOT just if it's
+  // empty, since deleting every chore via /admin is a valid end state that
+  // must not get silently repopulated with the defaults on next restart.
+  if (db.chores === undefined) {
+    db.chores = Object.fromEntries(DEFAULT_CHORES.map((c) => [c.id, c]));
+    await persistDb();
+  }
 }
 
 function persistDb() {
@@ -83,7 +104,28 @@ function isValidDate(date) {
 }
 
 const isValidPerson = (id) => typeof id === "string" && PERSON_IDS.has(id);
-const isValidChore = (id) => typeof id === "string" && CHORE_IDS.has(id);
+const isValidChore = (id) => typeof id === "string" && Object.hasOwn(db.chores, id);
+
+const MAX_LABEL_LEN = 60;
+const MAX_EMOJI_LEN = 8; // generous — covers multi-codepoint emoji (ZWJ sequences, skin tones)
+
+function isValidLabel(label) {
+  return typeof label === "string" && label.trim().length > 0 && label.trim().length <= MAX_LABEL_LEN;
+}
+
+function isValidEmoji(emoji) {
+  return typeof emoji === "string" && emoji.trim().length > 0 && emoji.length <= MAX_EMOJI_LEN;
+}
+
+function isValidDays(days) {
+  return (
+    Array.isArray(days) &&
+    days.length > 0 &&
+    days.length <= 7 &&
+    days.every((d) => Number.isInteger(d) && d >= 0 && d <= 6) &&
+    new Set(days).size === days.length
+  );
+}
 
 // Minimal per-IP rate limit — a speed bump against a runaway client, not a
 // security boundary (this server only needs to survive your own household).
@@ -268,6 +310,78 @@ async function handleDeleteExtra(req, res) {
 }
 
 // ============================================================================
+// Chores — managed live from /admin.html rather than config.js. Deleting a
+// chore doesn't touch any completions already recorded against its id; they
+// simply stop being shown (the day/week/star logic only ever looks at
+// chores that currently exist).
+// ============================================================================
+
+function handleGetChores(req, res) {
+  const chores = Object.values(db.chores).map((c) => ({
+    id: c.id,
+    person_id: c.person_id,
+    label: c.label,
+    emoji: c.emoji,
+    days: c.days,
+  }));
+  sendJson(res, 200, { chores });
+}
+
+async function handleCreateChore(req, res) {
+  let body;
+  try {
+    body = await readJsonBody(req);
+  } catch {
+    return sendError(res, 400, "Invalid JSON body.");
+  }
+  const { person_id, label, emoji, days } = body ?? {};
+  if (!isValidPerson(person_id)) return sendError(res, 400, "Unknown 'person_id'.");
+  if (!isValidLabel(label)) return sendError(res, 400, `'label' must be 1–${MAX_LABEL_LEN} characters.`);
+  if (!isValidEmoji(emoji)) return sendError(res, 400, "'emoji' must not be empty.");
+  if (!isValidDays(days)) return sendError(res, 400, "'days' must be a non-empty array of unique weekday numbers 0–6.");
+
+  const id = randomUUID();
+  db.chores[id] = { id, person_id, label: label.trim(), emoji, days };
+  await persistDb();
+  sendJson(res, 201, { id });
+}
+
+async function handleUpdateChore(req, res) {
+  let body;
+  try {
+    body = await readJsonBody(req);
+  } catch {
+    return sendError(res, 400, "Invalid JSON body.");
+  }
+  const { id, person_id, days } = body ?? {};
+  if (typeof id !== "string" || !db.chores[id]) return sendError(res, 400, "Unknown chore 'id'.");
+  if (person_id !== undefined && !isValidPerson(person_id)) return sendError(res, 400, "Unknown 'person_id'.");
+  if (days !== undefined && !isValidDays(days)) {
+    return sendError(res, 400, "'days' must be a non-empty array of unique weekday numbers 0–6.");
+  }
+
+  if (person_id !== undefined) db.chores[id].person_id = person_id;
+  if (days !== undefined) db.chores[id].days = days;
+  await persistDb();
+  sendJson(res, 200, { ok: true });
+}
+
+async function handleDeleteChore(req, res) {
+  let body;
+  try {
+    body = await readJsonBody(req);
+  } catch {
+    return sendError(res, 400, "Invalid JSON body.");
+  }
+  const { id } = body ?? {};
+  if (typeof id !== "string" || id.length === 0) return sendError(res, 400, "Invalid 'id'.");
+
+  delete db.chores[id];
+  await persistDb();
+  sendJson(res, 200, { ok: true });
+}
+
+// ============================================================================
 // Router
 // ============================================================================
 
@@ -285,6 +399,10 @@ const server = createServer(async (req, res) => {
       if (url.pathname === "/api/toggle" && req.method === "POST") return await handleToggle(req, res);
       if (url.pathname === "/api/extra" && req.method === "POST") return await handleAddExtra(req, res);
       if (url.pathname === "/api/extra" && req.method === "DELETE") return await handleDeleteExtra(req, res);
+      if (url.pathname === "/api/chores" && req.method === "GET") return handleGetChores(req, res);
+      if (url.pathname === "/api/chores" && req.method === "POST") return await handleCreateChore(req, res);
+      if (url.pathname === "/api/chores" && req.method === "PATCH") return await handleUpdateChore(req, res);
+      if (url.pathname === "/api/chores" && req.method === "DELETE") return await handleDeleteChore(req, res);
 
       return sendError(res, 404, "Unknown API route.");
     }

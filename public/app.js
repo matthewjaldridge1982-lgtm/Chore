@@ -1,4 +1,4 @@
-import { TIMEZONE, PEOPLE, CHORES } from "./config.js";
+import { TIMEZONE, PEOPLE } from "./config.js";
 
 // ============================================================================
 // Constants / DOM refs
@@ -119,9 +119,7 @@ function weekdayForDateStr(dateStr) {
 }
 
 function choresForPerson(personId, weekday) {
-  return CHORES.filter(
-    (c) => c.person === personId && (c.days === "daily" || c.days.includes(weekday))
-  );
+  return state.chores.filter((c) => c.person_id === personId && c.days.includes(weekday));
 }
 
 // ============================================================================
@@ -132,6 +130,7 @@ const state = {
   personId: localStorage.getItem(LS_PERSON_KEY) || null,
   view: "chores", // 'chores' | 'family'
   today: computeToday(),
+  chores: [], // [{id, person_id, label, emoji, days}], fetched from /api/chores
   day: { completions: new Set(), extras: [] }, // "person_id|chore_id" keys
   week: { dates: [], completions: [], extras: [] },
   // Set of "date|person_id|chore_id" for the most recently finished Mon–Fri,
@@ -189,6 +188,7 @@ const api = {
   toggle: (body) => apiRequest("POST", "/api/toggle", body),
   addExtra: (body) => apiRequest("POST", "/api/extra", body),
   deleteExtra: (id) => apiRequest("DELETE", "/api/extra", { id }),
+  getChores: () => apiRequest("GET", "/api/chores"),
 };
 
 // ============================================================================
@@ -660,7 +660,8 @@ async function refreshStarWeek() {
 async function refreshCurrentView() {
   state.today = computeToday();
   try {
-    await refreshStarWeek();
+    const [choresData] = await Promise.all([api.getChores(), refreshStarWeek()]);
+    state.chores = choresData.chores;
 
     if (!state.personId) {
       if (!el.screenPicker.hidden) renderPicker();
