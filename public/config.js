@@ -67,20 +67,20 @@
 export const TIMEZONE = "Australia/Melbourne";
 
 export const PEOPLE = [
-  { id: "p1", name: "Ruby", emoji: "🦊", colour: "#ff9500" },
-  { id: "p2", name: "Finn", emoji: "🐢", colour: "#007aff" },
-  { id: "p3", name: "Mum", emoji: "🦉", colour: "#34c759" },
-  { id: "p4", name: "Dad", emoji: "🐙", colour: "#af52de" },
+  { id: "p1", name: "Rocco", emoji: "🕷️", colour: "#ff9500" },
+  { id: "p2", name: "Leonardo", emoji: "🐧", colour: "#007aff" },
+  { id: "p3", name: "Mum", emoji: "🐱", colour: "#34c759" },
+  { id: "p4", name: "Dad", emoji: "🦤", colour: "#af52de" },
 ];
 
 export const CHORES = [
-  // --- Ruby (7) --- all weekdays; a perfect Mon–Fri earns the weekly star.
+  // --- Rocco (7) --- all weekdays; a perfect Mon–Fri earns the weekly star.
   { id: "c1", person: "p1", label: "Make bed", emoji: "🛏️", days: [1, 2, 3, 4, 5] },
   { id: "c2", person: "p1", label: "Feed the cat", emoji: "🐱", days: [1, 2, 3, 4, 5] },
   { id: "c3", person: "p1", label: "Pack school bag", emoji: "🎒", days: [1, 2, 3, 4, 5] },
   { id: "c4", person: "p1", label: "Toys away", emoji: "🧸", days: [1, 2, 3, 4, 5] },
 
-  // --- Finn (11) ---
+  // --- Leonardo (11) ---
   { id: "c5", person: "p2", label: "Make bed", emoji: "🛏️", days: [1, 2, 3, 4, 5] },
   { id: "c6", person: "p2", label: "Empty dishwasher", emoji: "🍽️", days: [1, 3, 5] },
   { id: "c7", person: "p2", label: "Take out bins", emoji: "🗑️", days: [2, 5] },
