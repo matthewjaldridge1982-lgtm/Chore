@@ -21,8 +21,20 @@
     <h2>Add a chore</h2>
     <form id="add-chore-form">
       <div class="admin-field">
-        <label for="add-emoji">Emoji</label>
-        <input id="add-emoji" class="admin-emoji-input" type="text" maxlength="8" placeholder="🧹" required autocomplete="off" />
+        <label>Emoji</label>
+        <button type="button" id="emoji-trigger" class="admin-emoji-trigger" aria-haspopup="true" aria-expanded="false">
+          <span id="emoji-trigger-glyph">🧹</span>
+        </button>
+        <div id="emoji-panel" class="admin-emoji-panel" hidden>
+          <input
+            id="emoji-search"
+            class="admin-emoji-search"
+            type="text"
+            placeholder="Search e.g. &quot;plant&quot;, &quot;dog&quot;, &quot;clean&quot;…"
+            autocomplete="off"
+          />
+          <div id="emoji-grid" class="admin-emoji-grid"></div>
+        </div>
       </div>
 
       <div class="admin-field">

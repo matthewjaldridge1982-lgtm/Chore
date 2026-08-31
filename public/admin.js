@@ -1,12 +1,18 @@
 import { PEOPLE } from "./config.js";
+import { EMOJI_LIST } from "./emoji-data.js";
 
 const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"]; // 0=Sun … 6=Sat
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DEFAULT_EMOJI = "🧹";
 
 const el = {
   banner: document.getElementById("banner"),
   addForm: document.getElementById("add-chore-form"),
-  addEmoji: document.getElementById("add-emoji"),
+  emojiTrigger: document.getElementById("emoji-trigger"),
+  emojiTriggerGlyph: document.getElementById("emoji-trigger-glyph"),
+  emojiPanel: document.getElementById("emoji-panel"),
+  emojiSearch: document.getElementById("emoji-search"),
+  emojiGrid: document.getElementById("emoji-grid"),
   addLabel: document.getElementById("add-label"),
   addPeople: document.getElementById("add-people"),
   addDays: document.getElementById("add-days"),
@@ -16,7 +22,7 @@ const el = {
 const personById = Object.fromEntries(PEOPLE.map((p) => [p.id, p]));
 
 let chores = [];
-const addFormState = { people: new Set(), days: new Set([1, 2, 3, 4, 5]) };
+const addFormState = { emoji: DEFAULT_EMOJI, people: new Set(), days: new Set([1, 2, 3, 4, 5]) };
 
 // ============================================================================
 // API — small standalone client (deliberately not shared with app.js, which
@@ -94,14 +100,77 @@ function renderAddDayPills() {
   }
 }
 
+// ============================================================================
+// Emoji picker — a word search over a curated, embedded emoji list (see
+// emoji-data.js). No native OS picker or external service involved, so it
+// works offline like the rest of this app.
+// ============================================================================
+
+function setSelectedEmoji(emoji) {
+  addFormState.emoji = emoji;
+  el.emojiTriggerGlyph.textContent = emoji;
+}
+
+function openEmojiPanel() {
+  el.emojiPanel.hidden = false;
+  el.emojiTrigger.setAttribute("aria-expanded", "true");
+  el.emojiSearch.value = "";
+  renderEmojiGrid("");
+  el.emojiSearch.focus();
+}
+
+function closeEmojiPanel() {
+  el.emojiPanel.hidden = true;
+  el.emojiTrigger.setAttribute("aria-expanded", "false");
+}
+
+function renderEmojiGrid(query) {
+  const q = query.trim().toLowerCase();
+  const matches = q ? EMOJI_LIST.filter((item) => item.k.includes(q)) : EMOJI_LIST;
+
+  el.emojiGrid.innerHTML = "";
+  if (matches.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "admin-hint";
+    empty.textContent = "No emoji match that search.";
+    el.emojiGrid.appendChild(empty);
+    return;
+  }
+  for (const item of matches) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "admin-emoji-option";
+    btn.textContent = item.e;
+    btn.title = item.k.split(" ")[0];
+    btn.addEventListener("click", () => {
+      setSelectedEmoji(item.e);
+      closeEmojiPanel();
+    });
+    el.emojiGrid.appendChild(btn);
+  }
+}
+
+el.emojiTrigger.addEventListener("click", () => {
+  if (el.emojiPanel.hidden) openEmojiPanel();
+  else closeEmojiPanel();
+});
+
+el.emojiSearch.addEventListener("input", () => renderEmojiGrid(el.emojiSearch.value));
+
+document.addEventListener("click", (evt) => {
+  if (el.emojiPanel.hidden) return;
+  if (el.emojiPanel.contains(evt.target) || el.emojiTrigger.contains(evt.target)) return;
+  closeEmojiPanel();
+});
+
 el.addForm.addEventListener("submit", async (evt) => {
   evt.preventDefault();
-  const emoji = el.addEmoji.value.trim();
+  const emoji = addFormState.emoji;
   const label = el.addLabel.value.trim();
   const days = Array.from(addFormState.days);
   const people = Array.from(addFormState.people);
 
-  if (!emoji) return showBanner("Add an emoji first.");
+  if (!emoji) return showBanner("Pick an emoji first.");
   if (!label) return showBanner("Add a label first.");
   if (days.length === 0) return showBanner("Pick at least one day.");
   if (people.length === 0) return showBanner("Pick who it's for.");
@@ -113,6 +182,7 @@ el.addForm.addEventListener("submit", async (evt) => {
     el.addForm.reset();
     addFormState.people.clear();
     addFormState.days = new Set([1, 2, 3, 4, 5]);
+    setSelectedEmoji(DEFAULT_EMOJI);
     renderAddPeopleChips();
     renderAddDayPills();
     await loadChores();

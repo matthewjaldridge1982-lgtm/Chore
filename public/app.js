@@ -15,9 +15,6 @@ const el = {
   header: document.getElementById("app-header"),
   headerPerson: document.getElementById("header-person"),
   switchPersonBtn: document.getElementById("switch-person-btn"),
-  bottomNav: document.getElementById("bottom-nav"),
-  navChores: document.getElementById("nav-chores"),
-  navFamily: document.getElementById("nav-family"),
 
   screenPicker: document.getElementById("screen-picker"),
   pickerCards: document.getElementById("picker-cards"),
@@ -215,16 +212,10 @@ function showBanner(message) {
 // ============================================================================
 
 function render() {
-  const hasPerson = !!state.personId;
-
   el.screenPicker.hidden = state.view !== "picker";
   el.screenChores.hidden = state.view !== "chores";
   el.screenFamily.hidden = state.view !== "family";
   el.header.hidden = state.view === "picker";
-  // The bottom nav's "My Chores" tab is meaningless without a picked
-  // person, so the whole nav only shows once one is — even while viewing
-  // Family via the picker's shortcut (personId still null there).
-  el.bottomNav.hidden = state.view === "picker" || !hasPerson;
 
   if (state.view === "picker") {
     renderPicker();
@@ -232,10 +223,6 @@ function render() {
   }
 
   renderHeader();
-  if (hasPerson) {
-    el.navChores.classList.toggle("active", state.view === "chores");
-    el.navFamily.classList.toggle("active", state.view === "family");
-  }
 
   if (state.view === "chores") {
     renderChoresScreen();
@@ -575,13 +562,6 @@ function switchPerson() {
   render();
 }
 
-function switchView(view) {
-  if (state.view === view) return;
-  state.view = view;
-  render();
-  refreshCurrentView();
-}
-
 // From the picker screen's "Family overview" shortcut — peek at Family
 // without picking who you are first. personId stays untouched.
 function viewFamilyFromPicker() {
@@ -772,8 +752,6 @@ function registerServiceWorker() {
 function init() {
   el.switchPersonBtn.addEventListener("click", switchPerson);
   el.familyOverviewBtn.addEventListener("click", viewFamilyFromPicker);
-  el.navChores.addEventListener("click", () => switchView("chores"));
-  el.navFamily.addEventListener("click", () => switchView("family"));
   el.extraForm.addEventListener("submit", (evt) => {
     evt.preventDefault();
     addExtra(el.extraInput.value);
