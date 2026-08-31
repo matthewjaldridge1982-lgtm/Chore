@@ -52,10 +52,10 @@
 export const TIMEZONE = "Australia/Melbourne";
 
 export const PEOPLE = [
-  { id: "p1", name: "Ruby", emoji: "🦊", colour: "#e8734a" },
-  { id: "p2", name: "Finn", emoji: "🐢", colour: "#4a90d9" },
-  { id: "p3", name: "Mum", emoji: "🦉", colour: "#7ab648" },
-  { id: "p4", name: "Dad", emoji: "🐙", colour: "#9b59b6" },
+  { id: "p1", name: "Ruby", emoji: "🦊", colour: "#ff9500" },
+  { id: "p2", name: "Finn", emoji: "🐢", colour: "#007aff" },
+  { id: "p3", name: "Mum", emoji: "🦉", colour: "#34c759" },
+  { id: "p4", name: "Dad", emoji: "🐙", colour: "#af52de" },
 ];
 
 export const CHORES = [

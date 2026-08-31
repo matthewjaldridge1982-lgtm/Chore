@@ -189,15 +189,18 @@ function renderPicker() {
     card.style.setProperty("--accent", person.colour);
     card.dataset.personId = person.id;
 
+    const tile = document.createElement("div");
+    tile.className = "icon-tile";
     const emoji = document.createElement("span");
     emoji.className = "emoji";
     emoji.textContent = person.emoji;
+    tile.appendChild(emoji);
 
     const name = document.createElement("span");
     name.className = "name";
     name.textContent = person.name;
 
-    card.append(emoji, name);
+    card.append(tile, name);
     card.addEventListener("click", () => choosePerson(person.id));
     el.pickerCards.appendChild(card);
   }
@@ -254,9 +257,12 @@ function renderChoresScreen() {
     row.className = "chore-row" + (done ? " done" : "");
     row.style.setProperty("--accent", person.colour);
 
+    const tile = document.createElement("div");
+    tile.className = "icon-tile";
     const emoji = document.createElement("span");
     emoji.className = "chore-emoji";
     emoji.textContent = chore.emoji;
+    tile.appendChild(emoji);
 
     const label = document.createElement("span");
     label.className = "chore-label";
@@ -266,7 +272,7 @@ function renderChoresScreen() {
     tick.className = "chore-tick";
     tick.textContent = done ? "✓" : "";
 
-    row.append(emoji, label, tick);
+    row.append(tile, label, tick);
     row.addEventListener("click", () => toggleChore(person.id, chore.id));
 
     li.appendChild(row);
@@ -331,11 +337,15 @@ function renderFamilyScreen() {
     const row = document.createElement("button");
     row.type = "button";
     row.className = "family-person-row";
+    row.style.setProperty("--accent", person.colour);
     row.addEventListener("click", () => toggleExpandFamilyPerson(person.id));
 
+    const tile = document.createElement("div");
+    tile.className = "icon-tile";
     const emoji = document.createElement("span");
     emoji.className = "emoji";
     emoji.textContent = person.emoji;
+    tile.appendChild(emoji);
 
     const name = document.createElement("span");
     name.className = "name";
@@ -347,8 +357,9 @@ function renderFamilyScreen() {
 
     const dot = document.createElement("span");
     dot.className = `status-dot status-${status}`;
+    if (status === "complete") dot.style.setProperty("--accent", person.colour);
 
-    row.append(emoji, name, count, dot);
+    row.append(tile, name, count, dot);
     wrap.appendChild(row);
 
     const details = document.createElement("div");
@@ -425,6 +436,7 @@ function renderFamilyWeek() {
 
       const cell = document.createElement("div");
       cell.className = `week-cell week-day-cell status-${status}`;
+      if (status === "complete") cell.style.setProperty("--accent", person.colour);
       cell.title = `${person.name} — ${shortDayLabel(d)}: ${doneCount}/${chores.length}`;
       grid.appendChild(cell);
     }
