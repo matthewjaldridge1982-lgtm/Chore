@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Week 2 — Chopping and the drum problem | Film Beats</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/reference-data.js" defer></script>
+<script src="../js/app.js" defer></script>
+</head>
+<body>
+<nav id="site-nav"></nav>
+<main>
+
+<span style="color:var(--accent);font-weight:700;text-transform:uppercase;font-size:0.8em;letter-spacing:0.04em;">Week 2</span>
+<h1>Chopping and the drum problem</h1>
+
+<h2>Session A — chop</h2>
+<p><button class="term" data-ref="chop">Chopping</button> means slicing one continuous recording into pieces and putting each piece on its own pad, so you can replay them in a new order. It's the central move in sample-based music: you're not playing the original phrase, you're playing an instrument built out of the original phrase.</p>
+
+<h3>Step 1: Set markers</h3>
+<ol>
+  <li>Press the pad holding the sample you want to chop.</li>
+  <li><kbd>SHIFT + [START/END]</kbd> &rarr; marker setting screen <span class="conf-tag verified">verified</span>.</li>
+</ol>
+<p>Three ways to place markers:</p>
+<ul>
+  <li><strong>Manual.</strong> Position with <kbd>[CTRL 1]</kbd>, press <kbd>[MARK]</kbd> to drop a marker. Precise, slow.</li>
+  <li><strong><button class="term" data-ref="lazy-chop">Play-along ("lazy chop")</button>.</strong> With the sample previewing, press the blinking pads 2–16 at the moments you want a split. Fast, musical, roughly accurate.</li>
+  <li><strong><button class="term" data-ref="auto-mark">AUTO MARK</button>.</strong> Press <kbd>[VALUE]</kbd> &rarr; select AUTO MARK. Three modes <span class="conf-tag verified">verified</span>:
+    <ul>
+      <li><strong>TIME DIVISION</strong> — 2 to 16 equal slices. <strong>This is the one for orchestral score.</strong> Set 16 on a 4-bar loop and you get one slice per 1/16 note.</li>
+      <li><strong>LEVEL</strong> — 1 to 10, places markers where audio exceeds a set level.</li>
+      <li><strong>TRANSIENT</strong> — Hard / Mid / Soft. Good for percussive material, poor for strings and atmos.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Step 2: Assign to pads</h3>
+<button class="term" data-ref="assign-to-pad">Full procedure &rarr;</button>
+<ol>
+  <li>Press <kbd>[VALUE]</kbd> &rarr; select <strong>ASSIGN TO PAD</strong> &rarr; press <kbd>[VALUE]</kbd> <span class="conf-tag verified">verified</span>.</li>
+  <li>Pad colours: empty pads blink yellow, selected pads go green, occupied pads are dark orange.</li>
+  <li><kbd>[CTRL 2]</kbd> sets Gate on/off for the slices. Gate on is usually right for chops.</li>
+  <li><kbd>[CTRL 3]</kbd> arranges the split order.</li>
+  <li><kbd>[MARK]</kbd> executes.</li>
+</ol>
+
+<h3>Step 3: Play them out of order</h3>
+<p>That's the exercise. Take a 4-bar orchestral phrase, chop to 16, and build a new melody by playing slices in a sequence the composer never wrote. Record it as a pattern.</p>
+
+<h3>Step 4: Pitch and time</h3>
+<p>Press <kbd>[PITCH/SPEED]</kbd>. Two behaviours <span class="conf-tag verified">verified</span> — <button class="term" data-ref="vinyl-vari">VINYL mode vs. VARI mode &rarr;</button></p>
+<ul>
+  <li><strong>VINYL mode ON</strong> — pitch and speed are locked together, like changing the speed of a record. Slower = lower and longer. Tape-like, and the sound most associated with this genre.</li>
+  <li><strong>VINYL mode OFF (VARI mode)</strong> — pitch and speed are independent. You can drop a sample an octave without it getting longer.</li>
+</ul>
+<p>Toggle with <kbd>SHIFT + [VALUE]</kbd> knob on that screen.</p>
+<p>From firmware v2.00 there are VariPhrase-based time-stretch algorithms, selected with <kbd>SHIFT + [VALUE]</kbd> in the pitch/speed menu <span class="conf-tag verified">verified</span> — <button class="term" data-ref="stretch-algorithm">Backing vs. Ensemble &rarr;</button>:</p>
+<ul>
+  <li><strong>Backing</strong> — for sharp attacks. Drums, foley hits.</li>
+  <li><strong>Ensemble</strong> — for sustained material. Bass, pads, strings, drones.</li>
+</ul>
+<p>Choosing the wrong one is the usual cause of stretched samples sounding smeared.</p>
+<p><strong>Tempo detection:</strong> with <kbd>[PITCH/SPEED]</kbd> open, set <button class="term" data-ref="bpm-set-auto">BPM SET &rarr; AUTO</button> and the SP analyses the sample and sets its BPM. If it guesses wrong — common with orchestral material — switch to <strong>MANU</strong> and enter it yourself <span class="conf-tag verified">verified</span>.</p>
+
+<h2>Session B — drums from non-drums</h2>
+<p>Films almost never give you isolated drums. You build them.</p>
+
+<h3>Step 1: Source the raw material</h3>
+<ul>
+  <li><strong>Kick</strong> — a low door thud, a heavy footstep, a distant explosion. Anything with weight below 150 Hz.</li>
+  <li><strong>Snare</strong> — a slam, a gunshot, a slap. Needs a sharp crack.</li>
+  <li><strong>Hat</strong> — tape hiss, film grain noise, a fabric rustle, a cymbal edge.</li>
+</ul>
+
+<h3>Step 2: Shape each one</h3>
+<ol>
+  <li>Trim hard with <kbd>[START/END]</kbd>. A kick is 100–300 ms. A hat is 30–80 ms. Cut everything after the useful part.</li>
+  <li>Pitch down for weight: <kbd>[PITCH/SPEED]</kbd>, VINYL mode on, drop several semitones. A door thud at &minus;7 becomes a kick.</li>
+  <li>Set the <button class="term" data-ref="envelope">envelope</button>: <kbd>SHIFT + [PITCH/SPEED]</kbd> opens attack / hold / release <span class="conf-tag verified">verified</span>. Short release on hats, longer on kicks.</li>
+</ol>
+
+<h3>Step 3: Layer and resample</h3>
+<p>Two sources per drum. The classic combination is weight from one and attack from another — a low thud for body, a sharp click for the transient.</p>
+<ol>
+  <li>Put both on separate pads.</li>
+  <li>Press both simultaneously and check they sound like one hit, not two.</li>
+  <li>Press <kbd>[RESAMPLE]</kbd>, record the pair as one sample, assign to a single pad in the 1–4 range.</li>
+</ol>
+<p>You now have a drum kit that exists nowhere in the source film.</p>
+
+<div class="deliverable">
+  <strong class="label">Deliverable</strong>
+  <p>90 seconds. Drums built entirely from non-drum film audio.</p>
+</div>
+
+<div class="session-check">
+  <input type="checkbox" id="w2a" data-progress-id="week2-a">
+  <label for="w2a">Mark Session A complete</label>
+</div>
+<div class="session-check">
+  <input type="checkbox" id="w2b" data-progress-id="week2-b">
+  <label for="w2b">Mark Session B complete</label>
+</div>
+
+<div class="page-nav">
+  <a class="prev" href="week1.html"><small>Back to</small>&larr; Week 1</a>
+  <a class="next" href="week3.html"><small>Next</small>Week 3 &rarr;</a>
+</div>
+
+</main>
+<footer class="site-footer">Film Beats course</footer>
+</body>
+</html>

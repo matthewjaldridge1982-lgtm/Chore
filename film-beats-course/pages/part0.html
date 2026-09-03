@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Part 0 — Vocabulary | Film Beats</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/reference-data.js" defer></script>
+<script src="../js/app.js" defer></script>
+</head>
+<body>
+<nav id="site-nav"></nav>
+<main>
+
+<span class="eyebrow" style="color:var(--accent);font-weight:700;text-transform:uppercase;font-size:0.8em;letter-spacing:0.04em;">Before Week 1</span>
+<h1>Part 0 — The vocabulary you need first</h1>
+<p>Every procedure in this course is from the Roland SP-404MK2 reference manual (v2–v5) or the Moog Grandmother manual. <strong>Firmware caveat:</strong> menu paths shifted slightly between firmware versions. Check yours (<kbd>SHIFT + pad 13</kbd> → UTILITY → SYSTEM) and keep the shortcut PDF on your phone — see <a href="notes.html">Failure modes &amp; sources</a>.</p>
+<p>Confidence tags appear throughout this course where instructions aren't certain: <span class="conf-tag verified">verified</span>, <span class="conf-tag moderate">moderate</span>, <span class="conf-tag unverified">unverified — check your unit</span>.</p>
+
+<h2>Beats, bars, and BPM</h2>
+<p>A <button class="term" data-ref="beat">beat</button> is the pulse you'd tap your foot to. <button class="term" data-ref="bpm">BPM</button> (beats per minute) is how fast those pulses come. 60 BPM = one beat per second. Most of the boom-bap / Public Service Broadcasting territory this course lives in sits between 80 and 95 BPM.</p>
+<p>A <button class="term" data-ref="bar">bar</button> (Roland calls it a <strong>measure</strong> — same thing) is a group of beats, almost always 4. You count <code>1-2-3-4</code>, and every time you land back on <code>1</code> a new bar has started.</p>
+<p><strong>4 bars</strong> = counting <code>1-2-3-4</code> four times = 16 beats. It's the default loop length in sample-based music because most film score and most pop phrases resolve on a 4-bar cycle.</p>
+
+<h3>How long is 4 bars in seconds?</h3>
+<blockquote>
+  seconds per bar = 240 ÷ BPM<br>
+  4 bars = 960 ÷ BPM
+</blockquote>
+<div class="table-scroll">
+<table>
+<thead><tr><th>BPM</th><th>1 bar</th><th>4 bars</th></tr></thead>
+<tbody>
+<tr><td>70</td><td>3.43 s</td><td>13.7 s</td></tr>
+<tr><td>80</td><td>3.00 s</td><td>12.0 s</td></tr>
+<tr><td>90</td><td>2.67 s</td><td>10.7 s</td></tr>
+<tr><td>120</td><td>2.00 s</td><td>8.0 s</td></tr>
+<tr><td>140</td><td>1.71 s</td><td>6.9 s</td></tr>
+</tbody>
+</table>
+</div>
+<p>This matters immediately: skip-back memory holds 25 seconds by default, so at any tempo above ~40 BPM a 4-bar phrase fits comfortably. It also tells you when a sample is "wrong" — if you grabbed 9 seconds at 90 BPM you have roughly 3.4 bars, which is why it won't loop.</p>
+
+<p><button class="term" data-ref="finding-4-bars">How to find 4 bars in film music &rarr;</button></p>
+
+<h2>Playback behaviour</h2>
+<ul>
+  <li><button class="term" data-ref="gate">Gate</button> — the sample plays only while your finger is on the pad. Toggled globally by the <kbd>[GATE]</kbd> button. Use for chops and stabs.</li>
+  <li><button class="term" data-ref="one-shot">One-shot</button> — one press plays the sample all the way through; further presses are ignored until it finishes. Use for drum hits and dialogue lines you don't want retriggering.</li>
+  <li><button class="term" data-ref="loop-mode">Loop</button> — repeats until stopped. Use for drones and 4-bar beds.</li>
+</ul>
+
+<h2>Sample vs resample</h2>
+<p><button class="term" data-ref="sample-resample">Sampling vs. resampling</button> — sampling records audio coming into the SP; resampling records the SP's own output back into itself. Resampling is destructive in the sense that you can't unpick it afterwards.</p>
+
+<h2>Transient</h2>
+<p>The sharp attack at the front of a sound — the stick hitting the drum, the door slamming. <button class="term" data-ref="transient">Transient detection</button> is how the SP finds chop points automatically: it looks for sudden level jumps. Film atmos and orchestral swells have weak transients, so transient-based auto-chop works poorly on them. Level-based or equal-division chopping works better.</p>
+
+<h2>Quantise</h2>
+<p><button class="term" data-ref="quantise">Quantise</button> snaps your played timing to a grid (nearest 1/16 note, etc.). Full quantise makes things machine-tight and lifeless. This course deliberately asks you to leave one part unquantised.</p>
+
+<h2>Gain staging</h2>
+<p><button class="term" data-ref="gain-staging">Gain staging</button> means setting levels once, at the input, before recording. A sample recorded too quietly can't be fixed by turning it up later — you amplify the noise floor with it. Recorded too loud, it clips permanently. Aim for peaks around three-quarters of the meter, never touching the top.</p>
+
+<div class="page-nav">
+  <a class="prev" href="../index.html"><small>Back to</small>&larr; Course home</a>
+  <a class="next" href="setup.html"><small>Next</small>Setup &rarr;</a>
+</div>
+
+</main>
+<footer class="site-footer">Film Beats course</footer>
+</body>
+</html>

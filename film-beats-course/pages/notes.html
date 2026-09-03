@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Failure modes & sources | Film Beats</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/reference-data.js" defer></script>
+<script src="../js/app.js" defer></script>
+</head>
+<body>
+<nav id="site-nav"></nav>
+<main>
+
+<h1>Failure modes &amp; sources</h1>
+
+<h2>Failure modes</h2>
+<p>Common ways each week goes wrong, worth rereading if a session isn't working.</p>
+<ul>
+  <li><strong>Collecting instead of finishing.</strong> Sampling is pleasurable; arranging isn't. Forty pads and no bounce means the week failed.</li>
+  <li><strong>Over-processing.</strong> Film audio is already textured. Vinyl Sim on top of 1970s optical-track hiss is mud.</li>
+  <li><strong>Grandmother in the dialogue range.</strong> The most common way this genre fails — see <a href="week3.html">Week 3, Session B, Step 1</a>.</li>
+  <li><strong>Losing skip-back captures.</strong> <kbd>[EXIT]</kbd> before assigning wipes the buffer. Assign first.</li>
+  <li><strong>Wrong stretch algorithm.</strong> <button class="term" data-ref="stretch-algorithm">Backing for transients, Ensemble for sustains.</button></li>
+  <li><strong>Chasing the loop.</strong> If the SP feeds the Grandmother and the Grandmother feeds the SP, levels must stay low — see <a href="week3.html">Week 3, Session B, Step 2</a>.</li>
+</ul>
+
+<h2>What this course could not verify</h2>
+<p>Flagged honestly rather than guessed at, because getting these wrong wastes a session, not because the rest of the course is any less certain — see the confidence tags throughout for the general picture.</p>
+<ul>
+  <li>Which MIDI adapters, if any, shipped in your SP-404MK2 box.</li>
+  <li>The exact SHIFT+pad combinations for metronome and count-in on your firmware version.</li>
+  <li>Pattern chaining mechanics on your specific firmware — this changed across versions.</li>
+  <li>Whether the Grandmother passes external audio with no key held on your unit, or whether the VCA envelope gates it. Test in Week 3, Session B.</li>
+  <li>The specifics of Public Service Broadcasting's sample clearance arrangements.</li>
+</ul>
+
+<h2>Sources</h2>
+<ul>
+  <li>Roland SP-404MK2 Reference Manual (v2.00, v3.00, v4.00, v5.00): <code>static.roland.com/manuals/</code></li>
+  <li>Roland SP-404MK2 Shortcut Key List (v4.00): <code>static.roland.com/assets/media/pdf/SP-404MK2_v4_shortcut_eng03_W.pdf</code></li>
+  <li>Roland support: skip-back preview, MIDI sync, MIDI cable type, ExtIn resampling routing — <code>support.roland.com</code></li>
+  <li>Roland Australia, "SP-404MKII v2.00 New Features" — VariPhrase algorithms, 40 s skip-back</li>
+  <li>Moog Grandmother Manual v2 and Global Settings PDF — <code>api.moogmusic.com</code> / <code>cdn.inmusicbrands.com</code></li>
+</ul>
+<p>This course is a restructuring of a single written guide into a self-paced, cross-linked website — it does not add new claims beyond that source material. Confidence tags (<span class="conf-tag verified">verified</span>, <span class="conf-tag moderate">moderate</span>, <span class="conf-tag unverified">unverified</span>) are carried over unchanged from the original guide, not reassessed. Menu paths and shortcuts shift between SP-404MK2 firmware versions — check yours via <button class="term" data-ref="utility-menu">the Utility menu</button> before relying on an exact button sequence.</p>
+
+<h2 id="hosting">Hosting &amp; running this site</h2>
+<p>See the project <code>README.md</code> for full instructions. In short: this is a static site with no build step and no server-side code, so it can be:</p>
+<ul>
+  <li><strong>Deployed to Netlify for free</strong> — drag the <code>film-beats-course</code> folder onto <a href="https://app.netlify.com/drop" target="_blank" rel="noopener">app.netlify.com/drop</a>, or connect the repo and set the base/publish directory to <code>film-beats-course</code>.</li>
+  <li><strong>Run locally with a tiny local server</strong> (recommended over opening the file directly — see below), e.g. <code>npx serve film-beats-course</code> or <code>python3 -m http.server --directory film-beats-course</code>, then open <code>http://localhost:PORT</code>.</li>
+  <li><strong>Opened directly as a file</strong> (double-click <code>index.html</code>) — works for reading, but in most browsers each page opened this way is treated as its own private origin, so the progress checkboxes on one page won't be visible from another. Use the local-server option above if you want progress tracking to work across pages.</li>
+</ul>
+
+<div class="page-nav">
+  <a class="prev" href="reference.html"><small>Back to</small>&larr; Glossary &amp; how-to</a>
+  <a class="next" href="../index.html"><small>Back to</small>Course home &rarr;</a>
+</div>
+
+</main>
+<footer class="site-footer">Film Beats course</footer>
+</body>
+</html>

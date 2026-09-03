@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Week 1 — Get audio in, get it clean | Film Beats</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/reference-data.js" defer></script>
+<script src="../js/app.js" defer></script>
+</head>
+<body>
+<nav id="site-nav"></nav>
+<main>
+
+<span style="color:var(--accent);font-weight:700;text-transform:uppercase;font-size:0.8em;letter-spacing:0.04em;">Week 1</span>
+<h1>Get audio in, get it clean</h1>
+
+<h2>Session A — capture</h2>
+
+<h3>Step 1: Basic sampling (the manual method)</h3>
+<button class="term" data-ref="basic-sampling">Full procedure &rarr;</button>
+<ol>
+  <li>Get into <strong>sample mode</strong>: press <kbd>[EXIT]</kbd> several times. If you're in pattern mode, press <kbd>[PATTERN SELECT]</kbd>. Pads should light orange.</li>
+  <li>Press <kbd>[REC]</kbd>. Empty pads flash bright red; pads with samples glow dark red.</li>
+  <li>Press <kbd>[RECORD SETTING]</kbd> to open the input settings screen. Set:
+    <ul>
+      <li><strong>Input source</strong> — the input you're actually using (USB / LINE / EXT).</li>
+      <li><strong>REC LEVEL</strong> — start low, play the loudest part of your film audio, raise until peaks sit around <button class="term" data-ref="gain-staging">three-quarters</button>.</li>
+      <li><strong>LENGTH</strong> — number of measures. Set this to 4 if you want the SP to stop automatically after 4 <button class="term" data-ref="bar">bars</button>. Requires the tempo to be right first.</li>
+      <li><strong>TEMPO</strong> — if you know the film cue's <button class="term" data-ref="bpm">BPM</button>, enter it.</li>
+    </ul>
+  </li>
+  <li>Press a flashing pad to choose the destination. "WAIT" appears.</li>
+  <li>Recording begins automatically when the SP detects audio <span class="conf-tag verified">verified</span>. Start the film.</li>
+  <li>Press the same pad again, or <kbd>[REC]</kbd>, to stop. <kbd>[EXIT]</kbd> cancels.</li>
+</ol>
+
+<h3>Step 2: Skip-back sampling (the method you'll actually use)</h3>
+<p>This captures audio that has <strong>already passed through the input</strong>. You watch the film normally; when something good goes by, you grab it retrospectively. No pre-arming, no hitting record in time.</p>
+<p><button class="term" data-ref="skip-back">Full skip-back procedure &rarr;</button> <span class="conf-tag verified">verified against the Roland reference manual</span></p>
+<p><strong>How it works mechanically:</strong> the SP continuously writes incoming audio to a circular buffer. Anything older than the buffer length (25 s default, 40 s with SBS Long) is erased. The buffer only runs when incoming audio exceeds the Auto Trig Level threshold.</p>
+<ol>
+  <li>Confirm MARK Function is set to skip-back, not looper (<kbd>SHIFT + [VALUE]</kbd> toggles).</li>
+  <li>Press <kbd>[EXT SOURCE]</kbd> to turn the external input on, and start the film playing.</li>
+  <li><strong>Watch the <kbd>[MARK]</kbd> button.</strong> It blinks when skip-back memory is recording. <strong>If <kbd>[MARK]</kbd> is not blinking, nothing is being captured.</strong> If it won't blink, your input level is below the Auto Trig Level threshold — raise the input, or lower the threshold in settings.</li>
+  <li>When you hear something worth keeping, wait for it to finish, then press <kbd>[MARK]</kbd>. "SKIP BACK…" appears and the waveform of the buffer is drawn.</li>
+  <li><strong>Preview it:</strong> press <kbd>[SUB PAD]</kbd>. With <kbd>[GATE]</kbd> on, it plays only while you hold <kbd>[SUB PAD]</kbd> <span class="conf-tag verified">verified — Roland support article</span>.</li>
+  <li>Press <kbd>[REC]</kbd>. "Select Pad To Save" appears; empty pads blink red.</li>
+  <li>Press a pad. The audio is now assigned.</li>
+</ol>
+<div class="warn"><strong>Two ways to lose your capture, both permanent:</strong> pressing <kbd>[EXIT]</kbd> before assigning it to a pad, and powering the unit off. The skip-back buffer is volatile. Assign first, audition later.</div>
+
+<h3>Step 3: Today's captures</h3>
+<p>Get three things onto pads:</p>
+<ul>
+  <li>A 4-bar section of score (<button class="term" data-ref="finding-4-bars">count it as described in Part 0</button>).</li>
+  <li>One line of dialogue — short, 2–4 seconds, with a distinctive voice or reverb.</li>
+  <li>One foley hit — a door, a footstep, a mechanical clunk. Something with a hard <button class="term" data-ref="transient">transient</button>.</li>
+</ul>
+
+<h3>Step 4: Trim</h3>
+<button class="term" data-ref="trim">Full trimming steps &rarr;</button>
+<ol>
+  <li>Select the pad.</li>
+  <li>Press <kbd>[START/END]</kbd>. Adjust start and end points against the waveform.</li>
+  <li>Pull the start point tight against the first transient — even 50 ms of silence at the front makes a sample feel late when you play it.</li>
+  <li>Set the playback mode: <button class="term" data-ref="gate">[GATE]</button> on for the dialogue and the foley hit for now.</li>
+</ol>
+
+<h2>Session B — bank architecture</h2>
+
+<h3>Step 1: Layout</h3>
+<p>Use one bank (A–J, selected with the <kbd>[A/F]</kbd>–<kbd>[E/J]</kbd> buttons). Fixed layout, every week from here:</p>
+<div class="table-scroll">
+<table>
+<thead><tr><th>Pads</th><th>Contents</th></tr></thead>
+<tbody>
+<tr><td>1–4</td><td>Drums</td></tr>
+<tr><td>5–8</td><td>Bass / low end</td></tr>
+<tr><td>9–12</td><td>Melodic</td></tr>
+<tr><td>13–16</td><td>Texture / dialogue</td></tr>
+</tbody>
+</table>
+</div>
+<p>The point is muscle memory. In six weeks you should be reaching for pad 3 without looking when you want a snare.</p>
+
+<h3>Step 2: Record a pattern in real time</h3>
+<button class="term" data-ref="pattern-record">Full procedure &rarr;</button>
+<ol>
+  <li>Press <kbd>[PATTERN SELECT]</kbd>.</li>
+  <li>Press <kbd>[REC]</kbd>. Pads with no pattern blink red.</li>
+  <li>Press a blinking pad — that's your destination pattern. The unit enters record standby and shows the RECORD SETTING screen <span class="conf-tag verified">verified</span>.</li>
+  <li>Set pattern length (in measures) and quantise. Turn the metronome and count-in on if you want them — both are SHIFT+pad shortcuts <span class="conf-tag unverified">unverified which pads on your firmware; they're in the shortcut PDF</span>.</li>
+  <li>Press <kbd>[REC]</kbd> to start recording. Play the pads in time.</li>
+  <li>Leave one part unquantised. Nudging one element off-grid is most of what makes this genre feel human.</li>
+</ol>
+
+<div class="deliverable">
+  <strong class="label">Deliverable</strong>
+  <p>60 seconds. Three samples maximum. No effects. Bounce it however you can and stop.</p>
+</div>
+
+<div class="session-check">
+  <input type="checkbox" id="w1a" data-progress-id="week1-a">
+  <label for="w1a">Mark Session A complete</label>
+</div>
+<div class="session-check">
+  <input type="checkbox" id="w1b" data-progress-id="week1-b">
+  <label for="w1b">Mark Session B complete</label>
+</div>
+
+<div class="page-nav">
+  <a class="prev" href="setup.html"><small>Back to</small>&larr; Setup</a>
+  <a class="next" href="week2.html"><small>Next</small>Week 2 &rarr;</a>
+</div>
+
+</main>
+<footer class="site-footer">Film Beats course</footer>
+</body>
+</html>

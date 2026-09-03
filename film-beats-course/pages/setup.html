@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Setup | Film Beats</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/reference-data.js" defer></script>
+<script src="../js/app.js" defer></script>
+</head>
+<body>
+<nav id="site-nav"></nav>
+<main>
+
+<span style="color:var(--accent);font-weight:700;text-transform:uppercase;font-size:0.8em;letter-spacing:0.04em;">Before Week 1</span>
+<h1>Setup — do this before Week 1</h1>
+
+<h2>Signal chain — a correction to the original plan</h2>
+<p>The obvious plan is a laptop/TV headphone out into the SP's INPUT jack. That works, but there's a better option: the SP-404MK2 accepts <strong>USB audio input</strong>. Set your laptop's audio output device to the SP-404MK2 and its playback arrives digitally, with no analogue noise, no impedance mismatch, and no hot-headphone-out level problem <span class="conf-tag verified">verified — Roland/Sweetwater document sampling directly from the USB input</span>.</p>
+<p>This does not compromise the <button class="term" data-ref="dawless">dawless</button> principle. The laptop is a playback source, not a DAW in the signal path — same role a record player has for a crate digger.</p>
+
+<h3>Three routing options, in order of preference</h3>
+<ol>
+  <li><strong>USB.</strong> Laptop &rarr; SP USB port. Set laptop output to SP-404MK2. Cleanest.</li>
+  <li><strong>Line.</strong> Laptop/TV headphone out &rarr; SP LINE IN. Start with the laptop volume at about 30% and raise it; headphone outs are hot and will clip the SP's input.</li>
+  <li><strong>Zoom H4.</strong> Record off a speaker or via line, transfer the WAV by SD card and import. Slowest, but it's how you'd capture a cinema screening or a VHS deck with no clean output.</li>
+</ol>
+
+<h2>Cables and adapters to buy now</h2>
+<ul>
+  <li><button class="term" data-ref="trs-din-cable">TRS-to-DIN MIDI cable, Type-A</button>, 3.5mm TRS male &rarr; 5-pin DIN male. Type-B adapters (Korg, Arturia, Make Noise on some units) will not work — buy one that explicitly says Type-A.</li>
+  <li>I can't confirm what adapters shipped in your box; check before ordering. <span class="conf-tag unverified">unverified for your unit</span></li>
+  <li>Two 1/4" TS instrument cables for the SP &harr; Grandmother audio loop in Week 3.</li>
+</ul>
+
+<h2>One-time SP settings</h2>
+<button class="term" data-ref="utility-menu">Open the Utility / System menu &rarr;</button>
+<ol>
+  <li><kbd>SHIFT + pad 13</kbd> &rarr; UTILITY screen. <span class="conf-tag verified">verified</span></li>
+  <li><kbd>[VALUE]</kbd> knob &rarr; select SYSTEM &rarr; press <kbd>[VALUE]</kbd>.</li>
+  <li>Turn <kbd>[CTRL 3]</kbd> to move between tabs. You want:
+    <ul>
+      <li><strong>MIDI tab</strong> — for Week 4 sync.</li>
+      <li><strong>MARK Function</strong> — set to <button class="term" data-ref="sbs-long">SBS Long</button> if available. This raises skip-back memory from 25 to 40 seconds <span class="conf-tag verified">verified — extended in firmware v2.00</span>.</li>
+    </ul>
+  </li>
+  <li><kbd>[EXIT]</kbd> to back out.</li>
+</ol>
+
+<div class="warn">
+  <strong>Skip-back sampling and the looper cannot both be active.</strong> They share the <kbd>[MARK]</kbd> button. <kbd>SHIFT + press [VALUE] knob</kbd> toggles between them <span class="conf-tag verified">verified</span>. If skip-back isn't working, this is the first thing to check.
+</div>
+
+<div class="session-check">
+  <input type="checkbox" id="setup-check" data-progress-id="setup">
+  <label for="setup-check">Mark setup complete</label>
+</div>
+
+<div class="page-nav">
+  <a class="prev" href="part0.html"><small>Back to</small>&larr; Part 0 — Vocabulary</a>
+  <a class="next" href="week1.html"><small>Next</small>Week 1 &rarr;</a>
+</div>
+
+</main>
+<footer class="site-footer">Film Beats course</footer>
+</body>
+</html>

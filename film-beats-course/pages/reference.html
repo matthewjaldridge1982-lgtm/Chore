@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Glossary & how-to reference | Film Beats</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/reference-data.js" defer></script>
+<script src="../js/app.js" defer></script>
+</head>
+<body>
+<nav id="site-nav"></nav>
+<main>
+
+<h1>Glossary &amp; how-to reference</h1>
+<p>Every "Learn more" popup in this course, all in one browsable, searchable page. This is the same content that opens inline wherever a term is underlined — bookmark this page, or a specific entry's link, if you want to look something up directly instead of hunting through a week.</p>
+
+<input type="search" class="ref-search" id="ref-search" placeholder="Search terms and instructions…" aria-label="Search glossary">
+<div class="ref-filters" id="ref-filters">
+  <button data-filter="all" class="active">All</button>
+  <button data-filter="term">Glossary terms</button>
+  <button data-filter="howto">How-to</button>
+</div>
+
+<div id="ref-list"></div>
+<p id="ref-empty" hidden style="color:var(--text-dim);">No entries match that search.</p>
+
+<div class="page-nav">
+  <a class="prev" href="cheatsheet.html"><small>Back to</small>&larr; Cheat sheet</a>
+  <a class="next" href="notes.html"><small>Next</small>Failure modes &amp; sources &rarr;</a>
+</div>
+
+</main>
+<footer class="site-footer">Film Beats course</footer>
+
+<script>
+  const CONF_LABEL = { verified: "verified", moderate: "moderate confidence", unverified: "unverified — check your unit" };
+
+  function renderRefList(filterType, query) {
+    const list = document.getElementById("ref-list");
+    const empty = document.getElementById("ref-empty");
+    const q = (query || "").trim().toLowerCase();
+
+    const items = REFERENCE
+      .filter(e => filterType === "all" || e.type === filterType)
+      .filter(e => !q || e.title.toLowerCase().includes(q) || e.body.toLowerCase().includes(q))
+      .sort((a, b) => a.title.localeCompare(b.title));
+
+    empty.hidden = items.length > 0;
+
+    list.innerHTML = items.map(e => `
+      <article class="ref-entry" id="${e.id}">
+        <div class="modal-kicker">
+          <span class="badge badge-${e.type}">${e.type === "howto" ? "How to" : "Glossary"}</span>
+          ${e.confidence ? `<span class="badge badge-conf badge-conf-${e.confidence}">${CONF_LABEL[e.confidence] || e.confidence}</span>` : ""}
+        </div>
+        <h3>${e.title}</h3>
+        <div class="modal-body">${e.body}</div>
+      </article>
+    `).join("");
+
+    wireTermButtons(list);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    let currentFilter = "all";
+    renderRefList(currentFilter, "");
+
+    document.getElementById("ref-search").addEventListener("input", (e) => {
+      renderRefList(currentFilter, e.target.value);
+    });
+
+    document.getElementById("ref-filters").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-filter]");
+      if (!btn) return;
+      currentFilter = btn.getAttribute("data-filter");
+      document.querySelectorAll("#ref-filters button").forEach(b => b.classList.toggle("active", b === btn));
+      renderRefList(currentFilter, document.getElementById("ref-search").value);
+    });
+
+    if (location.hash) {
+      const target = document.getElementById(location.hash.slice(1));
+      if (target) setTimeout(() => target.scrollIntoView({ block: "start" }), 50);
+    }
+  });
+</script>
+</body>
+</html>

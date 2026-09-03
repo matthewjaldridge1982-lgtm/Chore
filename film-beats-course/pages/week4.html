@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Week 4 — Sync and effects | Film Beats</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/reference-data.js" defer></script>
+<script src="../js/app.js" defer></script>
+</head>
+<body>
+<nav id="site-nav"></nav>
+<main>
+
+<span style="color:var(--accent);font-weight:700;text-transform:uppercase;font-size:0.8em;letter-spacing:0.04em;">Week 4</span>
+<h1>Sync and effects</h1>
+
+<h2>Session A — MIDI clock</h2>
+<p><strong>What MIDI clock does:</strong> the SP sends timing pulses down the MIDI cable; the Grandmother's arpeggiator advances in step with them, so the arp locks to your pattern tempo instead of drifting.</p>
+<p><button class="term" data-ref="midi-clock">Full MIDI clock sync procedure &rarr;</button></p>
+
+<h3>Step 1: Connect</h3>
+<p>SP <kbd>MIDI OUT</kbd> (3.5mm TRS, Type-A) &rarr; Grandmother <kbd>MIDI IN</kbd> (5-pin DIN). Requires the <button class="term" data-ref="trs-din-cable">Type-A TRS-to-DIN cable</button> from <a href="setup.html">Setup</a>.</p>
+
+<h3>Step 2: Set the SP as clock master</h3>
+<ol>
+  <li><kbd>SHIFT + pad 13</kbd> &rarr; UTILITY.</li>
+  <li><kbd>[VALUE]</kbd> &rarr; SYSTEM &rarr; press <kbd>[VALUE]</kbd>.</li>
+  <li><kbd>[CTRL 3]</kbd> &rarr; <strong>MIDI</strong> tab.</li>
+  <li>Set MIDI Sync so the SP transmits clock (SP as master) <span class="conf-tag verified">verified path; the exact parameter names vary by firmware — the tab is right</span>.</li>
+  <li><kbd>[EXIT]</kbd>.</li>
+</ol>
+
+<h3>Step 3: Set the Grandmother to follow</h3>
+<p>The Grandmother's arpeggiator and sequencer can follow MIDI clock and respond to start/stop commands, configured through Global Settings <span class="conf-tag verified">verified</span>. Global Settings are entered by holding the <kbd>SYNC</kbd> button and pressing specific keys on the keyboard — the key map is in the Grandmother manual's Global Settings section. Settings persist through power cycles.</p>
+<p>Also confirm the MIDI channel matches (Grandmother default is channel 1).</p>
+<p><strong>Sanity check:</strong> start a pattern on the SP, press PLAY on the Grandmother's arpeggiator. If it's following, the arp rate knob will now select note divisions (1/4, 1/8, 1/16) rather than a free-running speed.</p>
+
+<h3>Step 4: Commit it to audio</h3>
+<p>Record the arpeggio into the SP as a sample. Don't leave it live.</p>
+<p>Reason: a dawless arrangement where one part is a live synth is a performance you have to nail every time. A dawless arrangement where everything is a sample on a pad is a piece you can edit. You lose the ability to change the arp later. That's the point — decisions get made and stay made.</p>
+
+<h2>Session B — effects and resampling</h2>
+<p>The SP has a large effects list. Four matter here.</p>
+<ul>
+  <li><strong>Vinyl Sim</strong> — adds noise, wow and flutter, and rolls off the extremes. Use sparingly.</li>
+  <li><strong>Cassette Sim</strong> — compresses, saturates and narrows. The main glue effect.</li>
+  <li><strong>Compressor</strong> — evens out level. Use on drums to make foley-built hits sit consistently.</li>
+  <li><strong>A filter</strong> (Super Filter or the isolator) — for sweeps and for carving space.</li>
+</ul>
+
+<h3>Step 1: Effect routing</h3>
+<p>Effects are applied per-pad by assigning the sample to a bus, or across the whole output. <kbd>SHIFT + [MFX]</kbd>-family shortcuts set bus destinations for a whole bank at once <span class="conf-tag unverified">unverified which combination on your firmware — it's in the shortcut PDF</span>.</p>
+<p>Practice: apply Cassette Sim to just the drum pads first. Then to everything.</p>
+
+<h3>Step 2: Resample the whole pattern</h3>
+<button class="term" data-ref="resample-pattern">Full procedure &rarr;</button>
+<ol>
+  <li>Play the pattern.</li>
+  <li>Press <kbd>[RESAMPLE]</kbd>.</li>
+  <li>Set <strong>ROUTING</strong>: <button class="term" data-ref="resample-routing">Mix vs. ExtIn</button> — <code>Mix</code> samples everything the SP is outputting; <code>ExtIn</code> samples only the external input while the pattern plays underneath <span class="conf-tag verified">verified</span>. For gluing your own pattern, you want <code>Mix</code>.</li>
+  <li>Record a full pattern cycle. Assign to a pad.</li>
+</ol>
+<p><strong>The trade:</strong> you can't unpick it. What you get is one coherent artefact instead of eight separate sounds that each have their own noise floor and stereo image. In this idiom the coherence is worth more than the flexibility. The original pads still exist if you need to rebuild.</p>
+
+<div class="deliverable">
+  <strong class="label">Deliverable</strong>
+  <p>90 seconds. MIDI-synced. One resampling pass.</p>
+</div>
+
+<div class="session-check">
+  <input type="checkbox" id="w4a" data-progress-id="week4-a">
+  <label for="w4a">Mark Session A complete</label>
+</div>
+<div class="session-check">
+  <input type="checkbox" id="w4b" data-progress-id="week4-b">
+  <label for="w4b">Mark Session B complete</label>
+</div>
+
+<div class="page-nav">
+  <a class="prev" href="week3.html"><small>Back to</small>&larr; Week 3</a>
+  <a class="next" href="week5.html"><small>Next</small>Week 5 &rarr;</a>
+</div>
+
+</main>
+<footer class="site-footer">Film Beats course</footer>
+</body>
+</html>
