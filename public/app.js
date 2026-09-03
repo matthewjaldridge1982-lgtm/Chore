@@ -552,7 +552,6 @@ function renderFamilyWeek() {
       const cell = document.createElement("button");
       cell.type = "button";
       cell.className = `week-cell week-day-cell status-${status}`;
-      if (status === "complete") cell.style.setProperty("--accent", person.colour);
       cell.title = `${person.name} — ${shortDayLabel(d)}: ${doneCount}/${chores.length}. Tap to review or change.`;
       cell.addEventListener("click", () => openWeekDayEditor(person.id, d));
       grid.appendChild(cell);

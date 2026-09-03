@@ -766,16 +766,21 @@ button {
   opacity: 0.8;
 }
 
+/* Traffic-light system, deliberately the same three colours regardless of
+   which person's row it's in — green/amber/red reads at a glance faster
+   than a per-person tint does, which matters more here (scanning a whole
+   week) than in the "Today" status dot elsewhere, which still uses the
+   person's own colour. */
 .week-day-cell.status-complete {
-  background: color-mix(in srgb, var(--accent, var(--green)) 78%, var(--surface));
+  background: color-mix(in srgb, var(--green) 75%, var(--surface));
 }
 
 .week-day-cell.status-partial {
-  background: color-mix(in srgb, var(--amber) 45%, var(--surface));
+  background: color-mix(in srgb, var(--amber) 60%, var(--surface));
 }
 
 .week-day-cell.status-none {
-  background: transparent;
+  background: color-mix(in srgb, var(--danger) 55%, var(--surface));
 }
 
 /* ---------- Week-day editor (retroactive tick/untick from the week grid) ---------- */
